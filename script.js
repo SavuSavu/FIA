@@ -469,44 +469,65 @@ function calculateBulkCost(type, baseCost, increaseRate, exponent, owned, quanti
  * @param {number|string} quantity - The number of jobs to purchase, or "max".
  */
 function buyJob(jobType, quantity) {
+    console.log(`buyJob called with: ${jobType}, ${quantity}`);
+    
     const jobData = balanceData.jobs[jobType];
     if (!jobData) {
         console.error(`Invalid job type: ${jobType}`);
         return;
     }
 
+    // Fix the string replacement to handle plurals correctly
+    let jobTypeBase = jobType;
+    if (jobType === "miners") jobTypeBase = "miner";
+    else if (jobType === "soldiers") jobTypeBase = "soldier";
+    else if (jobType === "wizards") jobTypeBase = "wizard";
+    
     let numToBuy = 0;
     if(quantity === 'max') {
         let maxBuyable = 0;
         let totalCost = 0;
-        let currentOwned = gameState[jobType.replace('s', '') + 'Jobs'];
+        let currentOwned = gameState[jobTypeBase + 'Jobs'];
         let nextCost = calculateNextCost(jobType, currentOwned);
         while (gameState.gold >= totalCost + nextCost) {
             totalCost += nextCost;
             maxBuyable++;
             currentOwned++;
             nextCost = calculateNextCost(jobType, currentOwned);
-    }
-    numToBuy = maxBuyable;
-
-    }else{
+        }
+        numToBuy = maxBuyable;
+    } else {
         numToBuy = quantity;
     }
 
+    const totalCost = calculateBulkCost(jobType, jobData.baseCost, jobData.costIncreaseRate, jobData.costExponent, gameState[jobTypeBase + 'Jobs'], quantity);
+    console.log(`Total cost: ${totalCost}, Current gold: ${gameState.gold}`);
 
-    const totalCost = calculateBulkCost(jobType, jobData.baseCost, jobData.costIncreaseRate, jobData.costExponent, gameState[jobType.replace('s', '') + 'Jobs'], quantity);
-
-    if (gameState.gold >= totalCost) {
+    if (gameState.gold >= totalCost && numToBuy > 0) {
         gameState.gold -= totalCost;
-        gameState[jobType.replace('s', '') + 'Jobs'] += numToBuy; // Use dynamic property name
+        gameState[jobTypeBase + 'Jobs'] += numToBuy; 
+        
         if(jobType === "wizards"){
-            gameState.goldPerClick += numToBuy * balanceData.jobs[jobType].goldPerClick;
-        }else{
-             gameState.goldPerSec += numToBuy * gameState[jobType.replace('s', '') + 'JobGPS']; //jobType === "miners" ? gameState.minerJobGPS : gameState.soldierJobGPS;
+            gameState.goldPerClick += numToBuy * jobData.goldPerClick;
+        } else {
+            // Get the correct per-unit GPS value
+            const gpsPerUnit = jobData.goldPerSecond;
+            gameState.goldPerSec += numToBuy * gpsPerUnit;
+            
+            // Update job-specific GPS properties
+            if(jobType === "miners") {
+                gameState.minerJobGPS = gpsPerUnit;
+            } else if(jobType === "soldiers") {
+                gameState.soldierJobGPS = gpsPerUnit;
+            }
         }
-        gameState[jobType.replace('s', '') + 'JobCost'] = calculateNextCost(jobType, gameState[jobType.replace('s', '') + 'Jobs']);  // Update the *individual* cost
+        
+        gameState[jobTypeBase + 'JobCost'] = calculateNextCost(jobType, gameState[jobTypeBase + 'Jobs']);
+        console.log(`Successfully bought ${numToBuy} ${jobType}`);
         updateUI();
         saveGame();
+    } else {
+        console.log(`Not enough gold or nothing to buy`);
     }
 }
 
@@ -568,6 +589,7 @@ document.querySelectorAll('.job-button').forEach(button => {
     button.addEventListener('click', () => {
         const jobType = button.dataset.job;
         const quantity = parseInt(button.dataset.quantity, 10) || button.dataset.quantity; // Handle "max"
+        console.log(`Attempting to buy ${quantity} ${jobType}`); // Add this debug line
         buyJob(jobType, quantity);
     });
 });

@@ -269,3 +269,12 @@ The game's balance is currently defined in the `BALANCE_DATA` constant. Key para
 Balancing an idle game is an iterative process. It's highly recommended to use a spreadsheet to model the game's economy and experiment with different parameter values.
 
 This document should provide a solid foundation for anyone continuing development on this project. Remember to keep the README, changelogs, and TODOs updated as the game evolves. Good luck!
+
+## 11. Known Issues and Bugfixes
+
+*   **Soldier Job Purchase Bug (FIXED):**
+    *   **Issue:** Players were unable to purchase soldiers even when they had enough gold. The purchase function was failing with "Total cost: NaN" error.
+    *   **Root Cause:** The string manipulation code in the `buyJob` function was incorrectly handling plural job names. When replacing 's' in "soldiers", it produced "oldiers" instead of "soldier", causing property access to undefined values.
+    *   **Fix:** Implemented a direct mapping from plural job types to their singular base forms, ensuring correct property access in the gameState object.
+    *   **Files Modified:** `script.js` - Updated the buyJob function to properly handle job type string manipulations.
+    *   **Technical Note:** This highlights the dangers of simple string replacements for deriving object property names. A more robust approach using explicit mappings is less error-prone.
