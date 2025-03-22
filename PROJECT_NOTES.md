@@ -316,24 +316,96 @@ This document should provide a solid foundation for anyone continuing developmen
 
 ## Sound Effects
 
-The game includes sound effects for clicks, purchases, and interactions, enhancing the player experience. Sounds can be toggled on/off.
+The game includes audio feedback for various interactions:
+
+- **Sound Effects System**: Sound effects for clicks, purchases, and interactions, with ability to toggle on/off.
 
 ### Sound Sources and Attribution
 
-All sound effects in this project are sourced from [Mixkit.co](https://mixkit.co/free-sound-effects/) and are available under the [Mixkit Free License](https://mixkit.co/license/):
+All sound effects are sourced from [Mixkit](https://mixkit.co/free-sound-effects/):
 
-- **coin-click.mp3** - Sourced from [Mixkit.co](https://mixkit.co/free-sound-effects/) - Coin sound effect
-- **stat-tap.mp3** - Sourced from [Mixkit.co](https://mixkit.co/free-sound-effects/) - Interface tap sound
-- **buy-job.mp3** - Sourced from [Mixkit.co](https://mixkit.co/free-sound-effects/) - Success purchase notification
-- **buy-upgrade.mp3** - Sourced from [Mixkit.co](https://mixkit.co/free-sound-effects/) - Achievement unlock 
-- **error.mp3** - Sourced from [Mixkit.co](https://mixkit.co/free-sound-effects/) - Error notification
-- **level-up.mp3** - Sourced from [Mixkit.co](https://mixkit.co/free-sound-effects/) - Level up achievement
-- **prestige.mp3** - Sourced from [Mixkit.co](https://mixkit.co/free-sound-effects/) - Game win notification
+1. **Coin Click Sound** (`coin-click.mp3`): Used for the main gold button. [Mixkit](https://mixkit.co/free-sound-effects/).
+2. **Stats Tap Sound** (`stat-tap.mp3`): Used for tapping on stat items. [Mixkit](https://mixkit.co/free-sound-effects/).
+3. **Buy Job Sound** (`buy-job.mp3`): Played on successful job purchases. [Mixkit](https://mixkit.co/free-sound-effects/).
+4. **Buy Upgrade Sound** (`buy-upgrade.mp3`): Played on successful upgrade purchases. [Mixkit](https://mixkit.co/free-sound-effects/).
+5. **Error Sound** (`error.mp3`): Played when a purchase fails due to insufficient gold. [Mixkit](https://mixkit.co/free-sound-effects/).
+6. **Prestige Sound** (`prestige.mp3`): Played during successful prestige actions. [Mixkit](https://mixkit.co/free-sound-effects/).
+7. **Level Up Sound** (`level-up.mp3`): Reserved for future use with achievements and milestones. [Mixkit](https://mixkit.co/free-sound-effects/).
 
-**License Information:** Per [Mixkit's Free License for Sound Effects](https://mixkit.co/license/), these assets:
-- Can be used in commercial and personal projects
-- Do not require attribution (though attribution is appreciated)
-- Are royalty-free
-- Can be used without sign-up or credentials
+These sounds are used under the [Mixkit Free License](https://mixkit.co/license/), which allows:
+- Use in commercial and personal projects
+- No attribution required (although appreciated)
+- No royalty payments
+- No sign-up required
 
-While attribution is not required by the license terms, we acknowledge Mixkit.co as the source of these sound effects. If you wish to share or showcase this project, you may optionally tag @mixkit_co on social media or include a link to [mixkit.co](https://mixkit.co/).
+## Background Music
+
+The game includes a background music system with 5 fantasy-themed tracks that play randomly.
+
+### Music System Features:
+
+- **Random Playlist**: The 5 music tracks play in random order, never repeating the same track consecutively.
+- **Volume Control**: 
+  - Music plays at 25% volume by default for a non-intrusive experience
+  - Volume can be adjusted using a slider that appears when hovering over the music button
+  - Volume setting is saved in localStorage and persists between sessions
+  - Volume can also be adjusted via a slider in the developer overlay
+- **Toggle Controls**: Music can be toggled on/off using:
+  - The 'M' key
+  - A visible music button in the bottom right corner of the screen
+  - A checkbox in the developer overlay
+
+### Music Sources and Attribution:
+
+Background music tracks are sourced from royalty-free providers:
+
+1. **Angevin** from Incompetech (Kevin MacLeod) - A medieval-inspired soundtrack ideal for fantasy settings.
+2. **Market Day** from RandomMind - A lively medieval market atmosphere.
+3. **Medieval Tavern** from RandomMind - Creates a cozy, adventurous inn atmosphere.
+4. **Fantasy Adventure** from Alexander Nakarada - An epic soundtrack for questing.
+5. **Medieval Village** from RandomMind - Ambient village sounds with medieval instruments.
+
+These tracks are used under CC0 or Creative Commons Attribution licenses. While attribution is not required for some tracks, we appreciate the composers' work.
+
+## Technology Stack
+
+* **JavaScript (ES6+)**: Core game mechanics, idle mechanics, upgrade system, prestige system, sound and music management
+* **HTML5**: Structure and game elements
+* **CSS3**: Mobile-first responsive design, animation effects, dark mode
+* **LocalStorage API**: Game state persistence
+* **JSON**: Balance data and configuration
+* **Audio API**: Sound effects and background music management
+
+## File Structure
+
+* **`style.css`**: CSS styling for the game, implementing mobile-first responsive design with dark mode
+* **`script.js`**: Core game logic, including resource management, jobs, upgrades, prestige, sound and music systems
+* **`balance.json`**: Game balance parameters and formulas
+* **`sounds/`**: Directory containing sound effect files
+* **`sounds/music/`**: Directory containing background music tracks
+* **`index.html`**: Game interface and structure
+
+## Code Structure
+
+*   `initGame()`: Initializes and loads the game state, sets up event listeners, and prepare the UI.
+*   `updateUI()`: Updates all UI elements with current game state.
+*   `formatNumber(number)`: Formats numbers for display (scientific notation or K/M/B/T).
+*   `clickGold()`: Handles gold button clicks, updates resources, and animates click feedback.
+*   `calculateJobCost(baseAmount, owned, growthRate)`: Calculates cost for the next job based on current ownership.
+*   `buyJob(jobType, quantity)`: Purchases the specified job in the given quantity.
+*   `buyUpgrade(upgradeType)`: Purchases the specified upgrade.
+*   `saveGame()`: Saves game state to localStorage.
+*   `loadGame()`: Loads game state from localStorage.
+*   `prestigeGame()`: Resets game progress in exchange for permanent bonuses.
+*   `calculatePrestigePoints()`: Calculates prestige points based on lifetime gold earned.
+*   `openTab(tabName)`: Handles tab switching between Jobs and Upgrades views.
+*   `loadSound(soundPath)`: Loads and caches sound files for better performance.
+*   `playSound(soundKey)`: Plays a sound effect by its key.
+*   `toggleSound()`: Toggles sound effects on/off.
+*   `loadSoundPreference()`: Loads sound preference from localStorage.
+*   `playRandomMusic()`: Selects and plays a random background music track.
+*   `playMusic(musicPath)`: Plays the specified music track.
+*   `toggleMusic()`: Toggles background music on/off.
+*   `loadMusicPreference()`: Loads music preference from localStorage.
+*   `isMobileDevice()`: Detects if the user is on a mobile device.
+*   `applyMobileSpecificBehavior()`: Applies mobile-specific enhancements.

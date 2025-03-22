@@ -208,6 +208,13 @@ const SOUNDS = {
     prestige: 'sounds/prestige.mp3'
 };
 
+// Music system variables
+let musicFiles = []; // Will store discovered music files
+let currentMusic = null;
+let currentMusicIndex = -1;
+let musicEnabled = true;
+let musicVolume = 0.25; // Default music volume at 25%
+
 // Sound cache to prevent reloading sounds
 const soundCache = {};
 
@@ -252,12 +259,26 @@ function playSound(soundKey) {
 }
 
 /**
- * Toggles sound on/off
- * @returns {boolean} New sound state
+ * Toggles sound effects on/off and updates UI elements
+ * @returns {boolean} The new sound state
  */
 function toggleSound() {
     soundEnabled = !soundEnabled;
     localStorage.setItem('soundEnabled', soundEnabled.toString());
+    
+    // Update dev overlay toggle if it exists
+    const soundToggleInput = document.getElementById('sound-toggle');
+    if (soundToggleInput) {
+        soundToggleInput.checked = soundEnabled;
+    }
+    
+    // Update main UI sound button if it exists
+    const soundToggleButton = document.getElementById('sound-toggle-button');
+    if (soundToggleButton) {
+        soundToggleButton.innerHTML = soundEnabled ? '🔊' : '🔇';
+        soundToggleButton.title = soundEnabled ? 'Mute Sound' : 'Enable Sound';
+    }
+    
     return soundEnabled;
 }
 
@@ -269,11 +290,26 @@ document.addEventListener('keydown', (event) => {
     }
 });
 
-// Load sound preference from localStorage
+/**
+ * Loads sound preference from localStorage
+ */
 function loadSoundPreference() {
     const savedSoundPreference = localStorage.getItem('soundEnabled');
     if (savedSoundPreference !== null) {
         soundEnabled = savedSoundPreference === 'true';
+    }
+    
+    // Update dev overlay toggle if it exists
+    const soundToggleInput = document.getElementById('sound-toggle');
+    if (soundToggleInput) {
+        soundToggleInput.checked = soundEnabled;
+    }
+    
+    // Update main UI sound button if it exists
+    const soundToggleButton = document.getElementById('sound-toggle-button');
+    if (soundToggleButton) {
+        soundToggleButton.innerHTML = soundEnabled ? '🔊' : '🔇';
+        soundToggleButton.title = soundEnabled ? 'Mute Sound' : 'Enable Sound';
     }
 }
 
@@ -978,6 +1014,473 @@ function addSoundToStatItems() {
 // --- Game Initialization ---
 
 /**
+ * Initializes the music system by discovering available music files
+ */
+function initMusicSystem() {
+    // Reset music files array
+    musicFiles = [];
+    
+    // Check if we have direct access to the one file we know exists
+    try {
+        // Add the known music file
+        musicFiles.push('sounds/music/Angevin.mp3');
+        
+        // Try to discover other music files by common extensions
+        const musicDir = 'sounds/music/';
+        const commonMusicFiles = [
+            'medieval-tavern.mp3',
+            'market-day.mp3',
+            'fantasy-adventure.mp3',
+            'medieval-village.mp3'
+        ];
+        
+        // Add any other potential music files that might exist
+        commonMusicFiles.forEach(filename => {
+            const audio = new Audio(musicDir + filename);
+            
+            // Add event listener to check if file loads successfully
+            audio.addEventListener('canplaythrough', () => {
+                if (!musicFiles.includes(musicDir + filename)) {
+                    musicFiles.push(musicDir + filename);
+                    console.log(`Music file discovered: ${filename}`);
+                }
+            }, { once: true });
+            
+            // Add error handler to ignore files that don't exist
+            audio.addEventListener('error', () => {
+                console.log(`Music file not found: ${filename}`);
+            }, { once: true });
+            
+            // Try to load the file
+            audio.load();
+        });
+    } catch (error) {
+        console.error("Error setting up music system:", error);
+    }
+    
+    console.log(`Music system initialized with ${musicFiles.length} tracks`);
+}
+
+/**
+ * Plays a random music track from the available music files
+ */
+function playRandomMusic() {
+    // If no music files or music is disabled, do nothing
+    if (musicFiles.length === 0 || !musicEnabled) return;
+    
+    // If there's only one music file, just play it on repeat
+    if (musicFiles.length === 1) {
+        playMusic(musicFiles[0]);
+        return;
+    }
+    
+    // Choose a random track that is different from the current one
+    let newIndex;
+    do {
+        newIndex = Math.floor(Math.random() * musicFiles.length);
+    } while (newIndex === currentMusicIndex && musicFiles.length > 1);
+    
+    currentMusicIndex = newIndex;
+    playMusic(musicFiles[currentMusicIndex]);
+}
+
+/**
+ * Plays the specified music track
+ * @param {string} musicPath - Path to the music file
+ */
+function playMusic(musicPath) {
+    try {
+        // Stop current music if playing
+        if (currentMusic) {
+            currentMusic.pause();
+            currentMusic.currentTime = 0;
+        }
+        
+        // Create new audio element
+        currentMusic = new Audio(musicPath);
+        currentMusic.volume = musicVolume;
+        
+        // Set up event for when track ends to play next track
+        currentMusic.addEventListener('ended', playRandomMusic);
+        
+        // Add error handling
+        currentMusic.addEventListener('error', (e) => {
+            console.error(`Error playing music file ${musicPath}:`, e);
+            // Try another track if available
+            if (musicFiles.length > 1) {
+                setTimeout(playRandomMusic, 1000);
+            }
+        });
+        
+        // Play the track
+        currentMusic.play().catch(error => {
+            console.error("Failed to play music:", error);
+        });
+    } catch (error) {
+        console.error("Error in playMusic:", error);
+    }
+}
+
+/**
+ * Toggles background music on/off
+ * @returns {boolean} New music state
+ */
+function toggleMusic() {
+    musicEnabled = !musicEnabled;
+    localStorage.setItem('musicEnabled', musicEnabled.toString());
+    
+    if (musicEnabled) {
+        playRandomMusic();
+    } else if (currentMusic) {
+        currentMusic.pause();
+        currentMusic.currentTime = 0;
+    }
+    
+    return musicEnabled;
+}
+
+/**
+ * Loads music preference from localStorage
+ */
+function loadMusicPreference() {
+    const savedMusicPreference = localStorage.getItem('musicEnabled');
+    if (savedMusicPreference !== null) {
+        musicEnabled = savedMusicPreference === 'true';
+    }
+    
+    // Start playing background music if enabled
+    if (musicEnabled) {
+        playRandomMusic();
+    }
+}
+
+// Toggle music when M key is pressed
+document.addEventListener('keydown', (event) => {
+    if (event.key === 'm' || event.key === 'M') {
+        const newMusicState = toggleMusic();
+        alert(`Music ${newMusicState ? 'enabled' : 'disabled'}`);
+    }
+});
+
+/**
+ * Sets the background music volume
+ * @param {number} volume - Volume level between 0 and 1
+ */
+function setMusicVolume(volume) {
+    // Ensure volume is between 0 and 1
+    musicVolume = Math.max(0, Math.min(1, volume));
+    
+    // Update current music if playing
+    if (currentMusic) {
+        currentMusic.volume = musicVolume;
+    }
+    
+    // Save to localStorage
+    localStorage.setItem('musicVolume', musicVolume.toString());
+}
+
+/**
+ * Loads music volume preference from localStorage
+ */
+function loadMusicVolumePreference() {
+    const savedVolumePreference = localStorage.getItem('musicVolume');
+    if (savedVolumePreference !== null) {
+        musicVolume = parseFloat(savedVolumePreference);
+        
+        // Update current music if playing
+        if (currentMusic) {
+            currentMusic.volume = musicVolume;
+        }
+    }
+}
+
+// Add sound toggle button to the main UI
+function addSoundToggleToUI() {
+    const resourcesContainer = document.querySelector('.resources');
+    
+    // Check if button already exists
+    if (document.getElementById('sound-toggle-button')) return;
+    
+    // Create sound toggle button
+    const soundToggleButton = document.createElement('button');
+    soundToggleButton.id = 'sound-toggle-button';
+    soundToggleButton.className = 'sound-toggle-button';
+    soundToggleButton.innerHTML = soundEnabled ? '🔊' : '🔇';
+    soundToggleButton.title = soundEnabled ? 'Mute Sound' : 'Enable Sound';
+    
+    // Style the button
+    soundToggleButton.style.background = 'none';
+    soundToggleButton.style.border = 'none';
+    soundToggleButton.style.fontSize = '24px';
+    soundToggleButton.style.cursor = 'pointer';
+    soundToggleButton.style.padding = '0';
+    soundToggleButton.style.marginRight = '10px';
+    soundToggleButton.style.display = 'flex';
+    soundToggleButton.style.alignItems = 'center';
+    soundToggleButton.style.justifyContent = 'center';
+    
+    // Toggle sound on click
+    soundToggleButton.addEventListener('click', () => {
+        toggleSound();
+        soundToggleButton.innerHTML = soundEnabled ? '🔊' : '🔇';
+        soundToggleButton.title = soundEnabled ? 'Mute Sound' : 'Enable Sound';
+    });
+    
+    // Add long press event for volume control popup
+    let longPressTimer;
+    
+    soundToggleButton.addEventListener('mousedown', (e) => {
+        longPressTimer = setTimeout(() => {
+            showVolumeControlPopup();
+        }, 500); // 500ms for long press
+    });
+    
+    soundToggleButton.addEventListener('touchstart', (e) => {
+        longPressTimer = setTimeout(() => {
+            showVolumeControlPopup();
+            e.preventDefault(); // Prevent touch events from propagating
+        }, 500); // 500ms for long press
+    });
+    
+    // Clear the timer if mouse/touch is released before the time is up
+    soundToggleButton.addEventListener('mouseup', () => {
+        clearTimeout(longPressTimer);
+    });
+    
+    soundToggleButton.addEventListener('mouseleave', () => {
+        clearTimeout(longPressTimer);
+    });
+    
+    soundToggleButton.addEventListener('touchend', () => {
+        clearTimeout(longPressTimer);
+    });
+    
+    soundToggleButton.addEventListener('touchcancel', () => {
+        clearTimeout(longPressTimer);
+    });
+    
+    // Insert the button at the beginning of the resources container
+    resourcesContainer.insertBefore(soundToggleButton, resourcesContainer.firstChild);
+}
+
+/**
+ * Shows the volume control popup with sliders for music and sound effects
+ */
+function showVolumeControlPopup() {
+    // Remove any existing popup before creating a new one
+    const existingPopup = document.getElementById('volume-control-popup');
+    if (existingPopup) {
+        document.body.removeChild(existingPopup);
+    }
+
+    // Create popup container
+    const popup = document.createElement('div');
+    popup.id = 'volume-control-popup';
+    popup.style.position = 'fixed';
+    
+    // Use semi-transparent background with rgba
+    popup.style.backgroundColor = 'rgba(58, 49, 34, 0.85)'; // Dark parchment with transparency
+    popup.style.border = '2px solid #8b6b3d';
+    popup.style.borderRadius = '8px';
+    popup.style.padding = '15px';
+    popup.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.5)';
+    popup.style.zIndex = '1000';
+    popup.style.color = '#e8d7b0'; // Light parchment text color
+    
+    // Check if on mobile device
+    const isMobile = window.innerWidth <= 768 || isMobileDevice();
+    
+    if (isMobile) {
+        // Center popup on mobile
+        popup.style.top = '50%';
+        popup.style.left = '50%';
+        popup.style.transform = 'translate(-50%, -50%)';
+        popup.style.maxWidth = '90%';
+        popup.style.width = '300px';
+    } else {
+        // Position near the sound button on desktop
+        const soundButton = document.getElementById('sound-toggle-button');
+        if (soundButton) {
+            const rect = soundButton.getBoundingClientRect();
+            popup.style.top = `${rect.bottom + 10}px`;
+            popup.style.left = `${rect.left - 100}px`;
+        } else {
+            popup.style.top = '60px';
+            popup.style.left = '10px';
+        }
+    }
+    
+    // Add title
+    const title = document.createElement('h3');
+    title.textContent = 'Volume Controls';
+    title.style.margin = '0 0 15px 0';
+    title.style.textAlign = 'center';
+    title.style.borderBottom = '1px solid #a88734';
+    title.style.paddingBottom = '5px';
+    title.style.color = '#e0c088'; // Gold tint for the title
+    popup.appendChild(title);
+    
+    // Add close button
+    const closeButton = document.createElement('button');
+    closeButton.innerHTML = '&times;';  // × symbol
+    closeButton.style.position = 'absolute';
+    closeButton.style.top = '5px';
+    closeButton.style.right = '5px';
+    closeButton.style.background = 'none';
+    closeButton.style.border = 'none';
+    closeButton.style.fontSize = '20px';
+    closeButton.style.cursor = 'pointer';
+    closeButton.style.color = '#e0c088';
+    closeButton.onclick = () => {
+        document.body.removeChild(popup);
+    };
+    popup.appendChild(closeButton);
+    
+    // Create music volume control
+    const musicVolumeControl = document.createElement('div');
+    musicVolumeControl.style.marginBottom = '15px';
+    
+    const musicLabel = document.createElement('label');
+    musicLabel.textContent = 'Music Volume:';
+    musicLabel.style.display = 'block';
+    musicLabel.style.marginBottom = '5px';
+    musicLabel.style.color = '#e0c088'; // Matching gold theme
+    musicVolumeControl.appendChild(musicLabel);
+    
+    const musicSliderContainer = document.createElement('div');
+    musicSliderContainer.style.display = 'flex';
+    musicSliderContainer.style.alignItems = 'center';
+    
+    const musicSlider = document.createElement('input');
+    musicSlider.type = 'range';
+    musicSlider.min = '0';
+    musicSlider.max = '100';
+    musicSlider.value = Math.round(musicVolume * 100);
+    musicSlider.style.flex = '1';
+    musicSlider.style.marginRight = '10px';
+    musicSlider.style.accentColor = '#a88734'; // Gold accent for sliders
+    
+    const musicVolumeValue = document.createElement('span');
+    musicVolumeValue.textContent = `${Math.round(musicVolume * 100)}%`;
+    musicVolumeValue.style.minWidth = '40px';
+    
+    musicSlider.addEventListener('input', () => {
+        const volume = parseFloat(musicSlider.value) / 100;
+        setMusicVolume(volume);
+        musicVolumeValue.textContent = `${musicSlider.value}%`;
+    });
+    
+    musicSliderContainer.appendChild(musicSlider);
+    musicSliderContainer.appendChild(musicVolumeValue);
+    musicVolumeControl.appendChild(musicSliderContainer);
+    
+    // Add music toggle
+    const musicToggle = document.createElement('div');
+    musicToggle.style.marginTop = '10px';
+    musicToggle.style.display = 'flex';
+    musicToggle.style.alignItems = 'center';
+    
+    const musicCheckbox = document.createElement('input');
+    musicCheckbox.type = 'checkbox';
+    musicCheckbox.id = 'music-toggle-checkbox';
+    musicCheckbox.checked = localStorage.getItem('musicEnabled') !== 'false';
+    musicCheckbox.style.marginRight = '8px';
+    
+    const musicToggleLabel = document.createElement('label');
+    musicToggleLabel.htmlFor = 'music-toggle-checkbox';
+    musicToggleLabel.textContent = 'Enable Music';
+    
+    musicCheckbox.addEventListener('change', () => {
+        if (musicCheckbox.checked) {
+            if (!currentMusic) {
+                playRandomMusic();
+            } else {
+                currentMusic.play();
+            }
+            localStorage.setItem('musicEnabled', 'true');
+        } else {
+            if (currentMusic) {
+                currentMusic.pause();
+            }
+            localStorage.setItem('musicEnabled', 'false');
+        }
+    });
+    
+    musicToggle.appendChild(musicCheckbox);
+    musicToggle.appendChild(musicToggleLabel);
+    musicVolumeControl.appendChild(musicToggle);
+    
+    popup.appendChild(musicVolumeControl);
+    
+    // Create sound volume control
+    const soundVolumeControl = document.createElement('div');
+    
+    const soundLabel = document.createElement('label');
+    soundLabel.textContent = 'Sound Effects Volume:';
+    soundLabel.style.display = 'block';
+    soundLabel.style.marginBottom = '5px';
+    soundLabel.style.color = '#e0c088'; // Matching gold theme
+    soundVolumeControl.appendChild(soundLabel);
+    
+    const soundSliderContainer = document.createElement('div');
+    soundSliderContainer.style.display = 'flex';
+    soundSliderContainer.style.alignItems = 'center';
+    
+    // Get the current sound volume or set default
+    let soundVolume = parseFloat(localStorage.getItem('soundVolume') || '1');
+    
+    const soundSlider = document.createElement('input');
+    soundSlider.type = 'range';
+    soundSlider.min = '0';
+    soundSlider.max = '100';
+    soundSlider.value = Math.round(soundVolume * 100);
+    soundSlider.style.flex = '1';
+    soundSlider.style.marginRight = '10px';
+    soundSlider.style.accentColor = '#a88734'; // Gold accent for sliders
+    
+    const soundVolumeValue = document.createElement('span');
+    soundVolumeValue.textContent = `${Math.round(soundVolume * 100)}%`;
+    soundVolumeValue.style.minWidth = '40px';
+    
+    soundSlider.addEventListener('input', () => {
+        const volume = parseFloat(soundSlider.value) / 100;
+        // Update sound volume and save to localStorage
+        localStorage.setItem('soundVolume', volume.toString());
+        soundVolumeValue.textContent = `${soundSlider.value}%`;
+    });
+    
+    soundSliderContainer.appendChild(soundSlider);
+    soundSliderContainer.appendChild(soundVolumeValue);
+    soundVolumeControl.appendChild(soundSliderContainer);
+    
+    popup.appendChild(soundVolumeControl);
+    
+    // Add to document
+    document.body.appendChild(popup);
+
+    // Add a delay before enabling close on click outside to prevent immediate closing on desktop
+    let closeEnabled = false;
+    
+    setTimeout(() => {
+        closeEnabled = true;
+    }, 100);
+    
+    // Close popup when clicking outside
+    const closeOnClickOutside = (e) => {
+        if (!closeEnabled) return;
+        
+        if (!popup.contains(e.target) && e.target.id !== 'sound-toggle-button') {
+            document.body.removeChild(popup);
+            document.removeEventListener('mousedown', closeOnClickOutside);
+            document.removeEventListener('touchstart', closeOnClickOutside);
+        }
+    };
+    
+    document.addEventListener('mousedown', closeOnClickOutside);
+    document.addEventListener('touchstart', closeOnClickOutside);
+}
+
+/**
  * Fetches the balance data from balance.json and initializes the game.
  */
 async function initGame() {
@@ -993,6 +1496,12 @@ async function initGame() {
 
     loadGame();
     loadSoundPreference();
+    
+    // Initialize music system
+    initMusicSystem();
+    loadMusicPreference(); // Initialize music preferences
+    loadMusicVolumePreference(); // Initialize music volume preference
+    
     openTab('jobs-content');
     jobsTabButton.classList.add("active");
     numberFormatToggle.checked = gameState.useScientificNotation;
@@ -1004,6 +1513,9 @@ async function initGame() {
     // Add sound toggle to dev overlay
     addSoundToggleToDevOverlay();
     
+    // Add sound toggle to main UI
+    addSoundToggleToUI();
+    
     // Add sound to stat items
     addSoundToStatItems();
 
@@ -1011,31 +1523,25 @@ async function initGame() {
         alert("Welcome to Fantasy Idle Adventure!\n\n" +
             "Click the gold coin to earn gold.\n" +
             "Use your gold to hire Miners, Soldiers, and Wizards (Jobs).\n" +
-            "Miners and Soldiers generate gold passively.\n" +
-            "Wizards increase the gold you earn per click.\n" +
-            "Buy Upgrades to enhance your Jobs' production!\n\n" +
-            "Press 'S' to toggle sounds on/off.\n" +
-            "Good luck!");
+            "Buy upgrades to improve your Jobs.\n\n" +
+            "Have fun!");
         localStorage.setItem('hasVisited', 'true');
     }
-
+    
     addManualSaveButton();
+
+    // Add event listeners to tab buttons
+    jobsTabButton.addEventListener('click', (event) => openTab('jobs-content', event)); // Pass event object
+    upgradesTabButton.addEventListener('click', (event) => openTab('upgrades-content', event)); // Pass event object
+    // Add event listener to number format toggle
+    numberFormatToggle.addEventListener('change', () => {
+        gameState.useScientificNotation = numberFormatToggle.checked; // Update the game state
+        updateUI(); // Re-render the UI with the new format
+        saveGame(); //save preference
+    });
+    // Add event listener to prestige button
+    prestigeButton.addEventListener('click', prestigeGame);
 }
-
-// Add event listeners to tab buttons
-jobsTabButton.addEventListener('click', (event) => openTab('jobs-content', event)); // Pass event object
-upgradesTabButton.addEventListener('click', (event) => openTab('upgrades-content', event)); // Pass event object
-// Add event listener to number format toggle
-numberFormatToggle.addEventListener('change', () => {
-    gameState.useScientificNotation = numberFormatToggle.checked; // Update the game state
-    updateUI(); // Re-render the UI with the new format
-    saveGame(); //save preference
-});
-// Add event listener to prestige button
-prestigeButton.addEventListener('click', prestigeGame);
-
-
-initGame(); // Call the initialization function
 
 // Add manual save function to the dev overlay
 function addManualSaveButton() {
@@ -1058,3 +1564,6 @@ function addManualSaveButton() {
         devOverlay.appendChild(saveButton);
     }
 }
+
+// Call the initialization function
+initGame();

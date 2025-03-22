@@ -66,6 +66,31 @@ body {
   font-size: 16px; /* Base font size for better mobile readability */
 }
 
+/* Sound toggle button */
+.sound-toggle-button {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 0;
+  margin-right: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.sound-toggle-button:active {
+  transform: scale(0.9);
+}
+
+@media (hover: hover) {
+  .sound-toggle-button:hover {
+    transform: scale(1.1);
+  }
+}
+
 /* Main container for the game - Mobile First */
 .game-container {
   background-color: #f9f2e1;
