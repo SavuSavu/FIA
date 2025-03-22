@@ -14,12 +14,14 @@ This project is a minimal viable product (MVP) of a fantasy-themed idle/clicker 
 *   **Tabbed Interface:** The UI is organized into tabs for "Jobs" and "Upgrades".
 *   **Bulk Buy:** The ability to buy jobs and upgrades using x1, x10 and max.
 *   **Prestige System:** Players can reset their progress to earn permanent bonuses when they reach enough lifetime gold.
+*   **Mobile-First Design:** The game features a responsive, touch-friendly interface optimized for all devices with special focus on mobile experience.
+*   **Sound Effects:** The game includes sound effects for clicks, purchases, and interactions, enhancing the player experience. Sounds can be toggled on/off.
 
 ## 2. Technology Stack
 
 *   **HTML:**  Provides the structure of the game's user interface.
-*   **CSS:**  Styles the game's appearance, creating a fantasy theme.
-*   **JavaScript:**  Implements the game logic, event handling, and data management.
+*   **CSS:**  Styles the game's appearance, creating a fantasy theme with mobile-first responsive design.
+*   **JavaScript:**  Implements the game logic, event handling, data management, and mobile-specific optimizations.
 *   **localStorage:**  Used for client-side data persistence **(temporary for MVP - will be replaced by database in future phases)**.
 *   **Future Technologies (Phase 2):**
     *   **Backend Framework/Language:** (e.g., Node.js, Python, etc.)
@@ -30,7 +32,7 @@ This project is a minimal viable product (MVP) of a fantasy-themed idle/clicker 
 The project consists of the following files:
 
 *   **`index.html`:**  The main HTML file containing the game's UI structure.  It links to `style.css` and `script.js`.
-*   **`style.css`:**  The CSS file containing all the styles for the game.
+*   **`style.css`:**  The CSS file containing all the styles for the game, with a mobile-first responsive design.
 *   **`script.js`:** The JavaScript file containing the core game logic and balance data.
 *   **`README.md`:**  A general project overview (less detailed than this file).
 *   **`PROJECT_NOTES.md`:** This File.
@@ -60,6 +62,14 @@ The `script.js` file is organized into the following sections:
     *   `prestigeGame()`: Handles the prestige action, resetting progress and awarding permanent bonuses.
     *   `saveGame()`: Enhanced to save game state to both localStorage and sessionStorage as a backup, with error handling.
     *   `loadGame()`: Improved to include fallback to sessionStorage backup, data validation, and timestamp logging.
+    *   `isMobileDevice()`: Detects if the user is on a mobile device.
+    *   `applyMobileSpecificBehavior()`: Applies mobile-specific enhancements.
+    *   `loadSound(soundPath)`: Loads and caches sound files for better performance.
+    *   `playSound(soundKey)`: Plays a sound effect by its key.
+    *   `toggleSound()`: Toggles sound effects on/off.
+    *   `loadSoundPreference()`: Loads sound preference from localStorage.
+    *   `addSoundToggleToDevOverlay()`: Adds a sound toggle checkbox to the developer overlay.
+    *   `addSoundToStatItems()`: Attaches sound event listeners to stat items.
 6.  **Event Listeners:**
     *   Click event listener for the main click button.
     *   Event listeners for job and upgrade purchase buttons (including quantity buttons).
@@ -69,6 +79,7 @@ The `script.js` file is organized into the following sections:
     *   `setInterval` for idle income.
     *   `setInterval` for autosaving.
     *   `beforeunload` event listener to save the game when the page is closed.
+    *   Touch event listeners for mobile devices.
     *   **Persistence Strategy:** Initially using `localStorage` for simplicity in the MVP phase.  **The project is planned to move to server-side persistence with a database and user accounts in a future development phase (Phase 2).** This will enable more robust data management, user accounts, and potential cross-device play.
 
 7.  **`initGame()` Function:**
@@ -77,6 +88,7 @@ The `script.js` file is organized into the following sections:
     *   Calls `loadGame()` to load any saved game data.
     *   Sets the initial active tab.
     *   Calls `updateUI()` to render the initial game state.
+    *   Applies mobile-specific behavior enhancements.
     *   Displays the welcome message (if it's the player's first visit).
 8.  **Calling `initGame()`:** The `initGame()` function is called to start the game.
 
@@ -184,12 +196,18 @@ This constant holds the balance parameters directly in the code. It has the foll
     *   **Reset Button:** Quickly resets the game to its initial state.
     *   **Number Format Toggle:** Switches between standard and scientific notation, which is useful for understanding very large numbers.
     *   **Value Setting:** Allows direct manipulation of gold, job counts, and upgrade levels, making it easy to test different game states.
+    *   **Close Button:** Added for easier use on mobile devices where keyboard shortcuts are less accessible.
 * **Number Formatting:** The `formatNumber()` function handles both standard formatting (with K/M/B/T suffixes) and scientific notation, providing flexibility for displaying large numbers. It also intelligently handles decimal places, showing them only when necessary.
 * **Cost Calculation Formula:** The `calculateNextCost()` and `calculateBulkCost()` functions use a formula that allows for a more controlled cost increase than a simple exponential curve.  This helps prevent runaway inflation and keeps upgrades achievable. The formula is: `nextCost = baseCost * (1 + costIncreaseRate * Math.pow(owned, costExponent))`.
 * **Event Driven:** The code uses an event based approach to handle changes in the state.
 * **Prestige Button Progress:** The prestige button shows current progress toward the prestige threshold, helping players understand how close they are to being able to prestige.
-*   The game does not currently support offline progression.  This is a high-priority TODO for the **current phase (Phase 1)**.
- *   This functionality should use `Date()` to calculate the amount of seconds away and add it to the gold. **This client-side implementation will be revisited when server-side persistence is implemented in Phase 2.**
+* **Mobile-First Design:**
+  * **Responsive Layout:** The game adapts to different screen sizes with a focus on mobile devices, using CSS media queries to progressively enhance the experience on larger screens.
+  * **Touch-Optimized UI:** All interactive elements are sized and spaced appropriately for touch, with a minimum tap target size of 48x48px.
+  * **Bottom Navigation:** On mobile devices, the tab navigation is positioned at the bottom of the screen for easier thumb access.
+  * **Enhanced Gold Button:** The main click button is larger on mobile for easier tapping.
+  * **Dark Mode Support:** The game automatically adapts to system dark mode preferences using the `prefers-color-scheme` media query.
+  * **Input Prevention:** Double-tap zooming is prevented on the gold button to improve the gameplay experience.
 * **Enhanced Data Persistence:** The game now saves data more frequently (every 10 seconds) and uses multiple approaches to prevent data loss:
   * Primary storage in localStorage
   * Backup storage in sessionStorage
@@ -232,12 +250,12 @@ This constant holds the balance parameters directly in the code. It has the foll
 **Long-Term TODOs (Lower Priority):**
 
 *   [x] **Prestige Mechanic:** Implemented with progress indicator on button
-*   [ ] **Sound Effects:**
+*   [x] **Responsive Design:** Implemented mobile-first, touch-friendly design
+*   [x] **Dark Mode:** Added automatic dark mode support based on system preferences
+*   [x] **Sound Effects:** Added sound effects for clicks, purchases, and interactions with volume control
 *   [ ] **Improved Visuals and Animations:**
 *   [ ] **Game Events and Challenges:**
 *   [ ] **Multiple Resource Types:**
-*   [ ] **Dark Mode:**
-*   [ ] **Responsive Design:**
 
 ## 9.  Debugging and Testing
 
@@ -251,6 +269,8 @@ This constant holds the balance parameters directly in the code. It has the foll
 *   **Developer Gold Setting:** The developer gold setting now also sets lifetime gold if the value is higher than current lifetime gold, making it easier to test prestige functionality.
 *   **Playtesting:**  Thorough playtesting is *essential* for balancing and identifying bugs.
 *   **Manual Save Button:** A "Force Save Game" button has been added to the developer overlay for testing save functionality.
+*   **Mobile Testing:** Test the game on various mobile devices and screen sizes to ensure the responsive design works correctly.
+*   **Device Emulation:** Use browser developer tools' device emulation to test various screen sizes and device types quickly.
 
 ## 10. Balance and Progression
 
@@ -278,3 +298,42 @@ This document should provide a solid foundation for anyone continuing developmen
     *   **Fix:** Implemented a direct mapping from plural job types to their singular base forms, ensuring correct property access in the gameState object.
     *   **Files Modified:** `script.js` - Updated the buyJob function to properly handle job type string manipulations.
     *   **Technical Note:** This highlights the dangers of simple string replacements for deriving object property names. A more robust approach using explicit mappings is less error-prone.
+
+*   **Mobile UI Implementation (NEW):**
+    *   **Enhancement:** The game UI has been completely redesigned with a mobile-first approach.
+    *   **Files Modified:** 
+        * `style.css` - Implemented responsive design with mobile-first principles
+        * `index.html` - Adjusted structure for better mobile layout and added mobile meta tags
+        * `script.js` - Added mobile-specific behaviors and touch optimizations
+    *   **Features Added:**
+        * Bottom-positioned tab navigation for thumb accessibility on mobile
+        * Larger touch targets for all interactive elements
+        * Dark mode support based on system preferences
+        * Mobile-friendly developer overlay with close button
+        * Touch feedback for button interactions
+        * Prevention of unwanted zoom on double-tap
+    *   **Technical Note:** Using media queries with a mobile-first approach allows the layout to naturally adapt from small screens to larger ones. The enhanced mobile UI makes the game accessible to the 80% of users expected to play on mobile devices.
+
+## Sound Effects
+
+The game includes sound effects for clicks, purchases, and interactions, enhancing the player experience. Sounds can be toggled on/off.
+
+### Sound Sources and Attribution
+
+All sound effects in this project are sourced from [Mixkit.co](https://mixkit.co/free-sound-effects/) and are available under the [Mixkit Free License](https://mixkit.co/license/):
+
+- **coin-click.mp3** - Sourced from [Mixkit.co](https://mixkit.co/free-sound-effects/) - Coin sound effect
+- **stat-tap.mp3** - Sourced from [Mixkit.co](https://mixkit.co/free-sound-effects/) - Interface tap sound
+- **buy-job.mp3** - Sourced from [Mixkit.co](https://mixkit.co/free-sound-effects/) - Success purchase notification
+- **buy-upgrade.mp3** - Sourced from [Mixkit.co](https://mixkit.co/free-sound-effects/) - Achievement unlock 
+- **error.mp3** - Sourced from [Mixkit.co](https://mixkit.co/free-sound-effects/) - Error notification
+- **level-up.mp3** - Sourced from [Mixkit.co](https://mixkit.co/free-sound-effects/) - Level up achievement
+- **prestige.mp3** - Sourced from [Mixkit.co](https://mixkit.co/free-sound-effects/) - Game win notification
+
+**License Information:** Per [Mixkit's Free License for Sound Effects](https://mixkit.co/license/), these assets:
+- Can be used in commercial and personal projects
+- Do not require attribution (though attribution is appreciated)
+- Are royalty-free
+- Can be used without sign-up or credentials
+
+While attribution is not required by the license terms, we acknowledge Mixkit.co as the source of these sound effects. If you wish to share or showcase this project, you may optionally tag @mixkit_co on social media or include a link to [mixkit.co](https://mixkit.co/).

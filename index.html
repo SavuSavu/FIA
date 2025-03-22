@@ -2,7 +2,9 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#f5e9d0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
     <title>Fantasy Idle Adventure</title>
     <link rel="stylesheet" href="style.css">
 </head>
@@ -19,14 +21,30 @@
         </div>
         <div class="prestige-info">Bonus: <span id="prestige-bonus"></span></div>
         <div class="stats">
-            <div>
-                <div>⛏️ Per Click: <span id="gold-per-click">1</span></div>
-                <div>⏱️ Per Second: <span id="gold-per-second">0</span></div>
+            <div class="stat-item" tabindex="0">
+                <div class="stat-icon">⛏️</div>
+                <div class="stat-value"><span id="gold-per-click">1</span></div>
+                <div class="stat-label">Per Click</div>
             </div>
-            <div>
-                <div>👷 Miners: <span id="miner-job-count">0</span></div>
-                <div>⚔️ Soldiers: <span id="soldier-job-count">0</span></div>
-                <div>🧙 Wizards: <span id="wizard-job-count">0</span></div>
+            <div class="stat-item" tabindex="0">
+                <div class="stat-icon">⏱️</div>
+                <div class="stat-value"><span id="gold-per-second">0</span></div>
+                <div class="stat-label">Per Second</div>
+            </div>
+            <div class="stat-item" tabindex="0">
+                <div class="stat-icon">👷</div>
+                <div class="stat-value"><span id="miner-job-count">0</span></div>
+                <div class="stat-label">Miners</div>
+            </div>
+            <div class="stat-item" tabindex="0">
+                <div class="stat-icon">⚔️</div>
+                <div class="stat-value"><span id="soldier-job-count">0</span></div>
+                <div class="stat-label">Soldiers</div>
+            </div>
+            <div class="stat-item" tabindex="0">
+                <div class="stat-icon">🧙</div>
+                <div class="stat-value"><span id="wizard-job-count">0</span></div>
+                <div class="stat-label">Wizards</div>
             </div>
         </div>
         <div class="click-area">
@@ -34,12 +52,6 @@
         </div>
         <div class="prestige-area">
             <button class="prestige-button" id="prestige-button" disabled>Prestige (Reach 1M Gold to Unlock)</button>
-        </div>
-
-        <!-- Tab Bar -->
-        <div class="tab">
-            <button class="tablinks" id="jobs-tab-button">Jobs</button>
-            <button class="tablinks" id="upgrades-tab-button">Upgrades</button>
         </div>
 
         <!-- Tab Content -->
@@ -54,6 +66,8 @@
                         <div class="job-info">
                             <span>+<span id="miner-gps">1</span> gold/sec</span>
                             <span>Cost: <span id="miner-job-cost">10</span> gold</span>
+                        </div>
+                        <div class="quantity-buttons">
                             <button class="job-button quantity-button" data-job="miners" data-quantity="1">x1</button>
                             <button class="job-button quantity-button" data-job="miners" data-quantity="10">x10</button>
                             <button class="job-button quantity-button" data-job="miners" data-quantity="max">Max</button>
@@ -64,16 +78,20 @@
                          <div class="job-info">
                             <span>+<span id="soldier-gps">5</span> gold/sec</span>
                             <span>Cost: <span id="soldier-job-cost">50</span> gold</span>
-                            <button class="job-button quantity-button" data-job="soldiers" data-quantity="1">x1</button>
-                            <button class="job-button quantity-button" data-job="soldiers" data-quantity="10">x10</button>
-                            <button class="job-button quantity-button" data-job="soldiers" data-quantity="max">Max</button>
-                        </div>
+                         </div>
+                         <div class="quantity-buttons">
+                            <button class="job-button quantity-button soldier" data-job="soldiers" data-quantity="1">x1</button>
+                            <button class="job-button quantity-button soldier" data-job="soldiers" data-quantity="10">x10</button>
+                            <button class="job-button quantity-button soldier" data-job="soldiers" data-quantity="max">Max</button>
+                         </div>
                     </div>
                     <div class="job-container">
                         <span>🧙 Wizard (Job)</span>
                         <div class="job-info">
                             <span>+2 gold/click</span>
                             <span>Cost: <span id="wizard-job-cost">100</span> gold</span>
+                        </div>
+                        <div class="quantity-buttons">
                             <button class="job-button quantity-button wizard" data-job="wizards" data-quantity="1">x1</button>
                             <button class="job-button quantity-button wizard" data-job="wizards" data-quantity="10">x10</button>
                             <button class="job-button quantity-button wizard" data-job="wizards" data-quantity="max">Max</button>
@@ -96,6 +114,8 @@
                             <span>+10% Miner GPS</span>
                             <span>Level: <span id="upgrade-miner-sharp-pickaxe-level">0</span></span>
                             <span>Cost: <span id="upgrade-miner-sharp-pickaxe-cost">50</span> gold</span>
+                        </div>
+                        <div class="quantity-buttons">
                             <button class="upgrade-button quantity-button" data-upgrade="miner-sharp-pickaxe" data-quantity="1">x1</button>
                             <button class="upgrade-button quantity-button" data-upgrade="miner-sharp-pickaxe" data-quantity="10">x10</button>
                             <button class="upgrade-button quantity-button" data-upgrade="miner-sharp-pickaxe" data-quantity="max">Max</button>
@@ -109,6 +129,8 @@
                             <span>+10% Soldier GPS</span>
                             <span>Level: <span id="upgrade-soldier-stronger-swords-level">0</span></span>
                             <span>Cost: <span id="upgrade-soldier-stronger-swords-cost">150</span> gold</span>
+                        </div>
+                        <div class="quantity-buttons">
                             <button class="upgrade-button quantity-button soldier" data-upgrade="soldier-stronger-swords" data-quantity="1">x1</button>
                             <button class="upgrade-button quantity-button soldier" data-upgrade="soldier-stronger-swords" data-quantity="10">x10</button>
                             <button class="upgrade-button quantity-button soldier" data-upgrade="soldier-stronger-swords" data-quantity="max">Max</button>
@@ -122,6 +144,8 @@
                             <span>+10% Wizard GPC</span>
                             <span>Level: <span id="upgrade-wizard-better-focus-level">0</span></span>
                             <span>Cost: <span id="upgrade-wizard-better-focus-cost">250</span> gold</span>
+                        </div>
+                        <div class="quantity-buttons">
                             <button class="upgrade-button quantity-button wizard" data-upgrade="wizard-better-focus" data-quantity="1">x1</button>
                             <button class="upgrade-button quantity-button wizard" data-upgrade="wizard-better-focus" data-quantity="10">x10</button>
                             <button class="upgrade-button quantity-button wizard" data-upgrade="wizard-better-focus" data-quantity="max">Max</button>
@@ -130,11 +154,18 @@
                 </div>
             </div>
         </div>
+        
+        <!-- Tab Bar (moved to the bottom for mobile) -->
+        <div class="tab">
+            <button class="tablinks" id="jobs-tab-button">Jobs</button>
+            <button class="tablinks" id="upgrades-tab-button">Upgrades</button>
+        </div>
     </div>
     <div class="autosave-notification" id="autosave-notification">Game saved!</div>
 
     <!-- Developer Overlay (Hidden by default) -->
    <div class="dev-overlay" id="dev-overlay">
+        <h3 style="color: white;">Developer Tools</h3>
         <button id="reset-button">Reset Game</button>
         <label for="number-format-toggle">
             <input type="checkbox" id="number-format-toggle">
@@ -171,6 +202,7 @@
         </div>
 
         <button id="dev-set-values">Set Values</button>
+        <button id="close-dev-overlay" style="background-color: #607D8B;">Close</button>
     </div>
 
     <script src="script.js"></script>

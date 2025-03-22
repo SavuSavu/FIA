@@ -4,17 +4,18 @@
  * ================================================================
  *
  * Purpose:
- * This stylesheet provides all visual styling for the Fantasy Idle Adventure game.
+ * This stylesheet provides all visual styling for the Fantasy Idle Adventure game,
+ * with a mobile-first approach to ensure optimal experience on all devices.
  *
  * Components styled:
- * - Main layout and containers
- * - Resource displays
- * - Click button and animations
- * - Job buttons and sections (including quantity buttons)
- * - Upgrade buttons and sections (including quantity buttons)
+ * - Responsive main layout and containers
+ * - Touch-friendly resource displays
+ * - Enhanced click button and animations for mobile
+ * - Mobile-optimized job buttons and sections
+ * - Mobile-optimized upgrade buttons and sections
  * - Notification elements
  * - Developer overlay and reset button
- * - Tab bar and tab content
+ * - Mobile-friendly tab navigation
  * - Number format toggle
  * - Prestige elements (button, bonus display, points display)
  *
@@ -28,432 +29,649 @@
  * v1.0.6 - Adjusted layout to place quantity buttons on the same line as job/upgrade info.
  * v1.0.7 - Added styles for the number format toggle in the developer overlay.
  * v1.0.8 - Added styles for prestige elements (button, points display, bonus display).
- *
- * TODO:
- * - Add responsive design for mobile devices
- * - Create dark mode theme
- * - Add more visual effects for upgrades
- * - Implement progress bars for next upgrades
+ * v2.0.0 - Complete redesign with mobile-first approach:
+ *          - Added responsive layouts for all screen sizes
+ *          - Optimized UI elements for touch interaction
+ *          - Improved button spacing for mobile devices
+ *          - Implemented mobile-friendly tab navigation
+ *          - Enhanced click area for mobile users
+ *          - Added media queries for progressive enhancement on larger screens
  * ================================================================
  */
 
-/* Base styling for body and general layout */
+/* ===== Mobile-First Base Styles ===== */
+
+/* Reset and Base */
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent; /* Removes tap highlight on mobile */
+}
+
+html {
+  touch-action: manipulation; /* Improves touch responsiveness */
+}
+
 body {
-    font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, serif;
-    background-color: #f5e9d0; /* Light parchment color */
-    color: #4a2c0f; /* Dark brown text */
-    margin: 0;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    min-height: 100vh;
-    /* SVG background pattern for texture */
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23f5e9d0"/><path d="M0,0 L100,100 M100,0 L0,100" stroke="%23e8d7b0" stroke-width="1"/></svg>');
-    text-align: center;
+  font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, serif;
+  background-color: #f5e9d0; /* Light parchment color */
+  color: #4a2c0f; /* Dark brown text */
+  margin: 0;
+  padding: 10px; /* Reduced padding for mobile */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23f5e9d0"/><path d="M0,0 L100,100 M100,0 L0,100" stroke="%23e8d7b0" stroke-width="1"/></svg>');
+  text-align: center;
+  font-size: 16px; /* Base font size for better mobile readability */
 }
 
-/* Main container for the game */
+/* Main container for the game - Mobile First */
 .game-container {
-    background-color: #f9f2e1; /* Lighter parchment for contrast */
-    border: 2px solid #8b6b3d; /* Brown border */
-    border-radius: 8px;
-    padding: 20px;
-    max-width: 600px;
-    width: 90%;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
+  background-color: #f9f2e1;
+  border: 2px solid #8b6b3d;
+  border-radius: 8px;
+  padding: 15px; /* Reduced padding for mobile */
+  width: 100%; /* Full width on mobile */
+  max-width: 100%; /* Ensures it doesn't overflow on small screens */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  margin: 0 auto;
 }
 
-/* Game title styling */
+/* Game title styling - Mobile First */
 h1 {
-    color: #7d4924; /* Rich brown color */
-    margin-top: 0;
-    font-size: 2rem;
-    text-shadow: 1px 1px 2px #d9c7a9; /* Text shadow for depth */
-    border-bottom: 2px solid #d9b679; /* Gold-like border */
-    padding-bottom: 10px;
+  color: #7d4924;
+  margin-top: 0;
+  font-size: 1.8rem; /* Slightly smaller for mobile */
+  text-shadow: 1px 1px 2px #d9c7a9;
+  border-bottom: 2px solid #d9b679;
+  padding-bottom: 8px;
 }
 
-/* Resource counter display */
+/* Resource counter display - Mobile First */
 .resources {
-    font-size: 1.5rem;
-    margin: 15px 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
+  font-size: 1.3rem; /* Smaller for mobile */
+  margin: 10px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap; /* Allow wrapping on small screens */
+  gap: 8px;
 }
 
-/* Prestige info display (bonus) */
+/* Prestige info display - Mobile First */
 .prestige-info {
-    font-size: 1rem;
-    margin-bottom: 10px;
-    color: #6b4423; /* Dark brown, same as job titles */
+  font-size: 0.9rem;
+  margin-bottom: 8px;
+  color: #6b4423;
 }
 
-/* Game statistics display area */
+/* Game statistics display area - Mobile First */
 .stats {
-    display: flex;
-    justify-content: space-around;
-    margin: 15px 0;
-    font-size: 1.1rem;
-    padding: 10px;
-    background-color: #f0e4c9; /* Slightly darker background for contrast */
-    border-radius: 5px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin: 10px 0;
+  padding: 10px;
+  background-color: #f0e4c9;
+  border-radius: 8px;
 }
 
-/* Container for the clickable area */
+.stat-item {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 65px;
+  height: 65px;
+  padding: 8px;
+  background-color: #e6d8b7;
+  border-radius: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: transform 0.2s, background-color 0.2s;
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
+}
+
+.stat-icon {
+  font-size: 1.8rem;
+  line-height: 1;
+  margin-bottom: 5px;
+}
+
+.stat-value {
+  font-size: 0.9rem;
+  font-weight: bold;
+  color: #6b4423;
+}
+
+.stat-label {
+  position: absolute;
+  bottom: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(74, 44, 15, 0.9);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s, visibility 0.2s;
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* Show label on hover, focus or active state (for touch) */
+.stat-item:hover .stat-label,
+.stat-item:focus .stat-label,
+.stat-item:active .stat-label {
+  opacity: 1;
+  visibility: visible;
+}
+
+.stat-item:active {
+  transform: scale(0.95);
+  background-color: #d9c9a3;
+}
+
+/* Container for the clickable area - Mobile First */
 .click-area {
-    margin: 20px 0;
+  margin: 15px 0;
 }
 
-/* Main clickable button styling */
+/* Main clickable button styling - Mobile First */
 .click-button {
-    background-color: #ffd700; /* Gold color */
-    border: 3px solid #ba8c00; /* Darker gold border */
-    border-radius: 50%; /* Circle shape */
-    width: 120px;
-    height: 120px;
-    font-size: 2.5rem;
-    cursor: pointer;
-    transition: transform 0.1s, box-shadow 0.1s; /* Smooth transition for animations */
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3); /* Shadow for 3D effect */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto;
+  background-color: #ffd700;
+  border: 3px solid #ba8c00;
+  border-radius: 50%;
+  width: 150px; /* Larger for touch targets */
+  height: 150px; /* Larger for touch targets */
+  font-size: 3rem; /* Larger for visibility */
+  cursor: pointer;
+  transition: transform 0.1s, box-shadow 0.1s;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+  -webkit-tap-highlight-color: transparent; /* Remove tap highlight */
+  user-select: none; /* Prevent text selection */
 }
 
-/* Hover effect for click button */
-.click-button:hover {
-    background-color: #ffdf33; /* Lighter gold on hover */
-    transform: scale(1.05); /* Slightly enlarge */
-}
-
-/* Active/clicked state for click button */
+/* Active/clicked state for click button - Adapted for touch */
 .click-button:active, .click-button.clicked {
-    transform: scale(0.95); /* Slightly shrink when clicked */
-    box-shadow: 0 2px 3px rgba(0, 0, 0, 0.3); /* Reduced shadow for pressed effect */
+  transform: scale(0.95);
+  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.3);
 }
 
-/* Jobs section styling */
-.jobs {
-    margin-top: 20px;
-    padding: 15px;
-    background-color: #eadec1;
-    border-radius: 8px;
-    border: 1px solid #c9b28f;
-}
-
-/* Upgrades section styling */
-.upgrades {
-     margin-top: 20px;
-    padding: 15px;
-    background-color: #eadec1;
-    border-radius: 8px;
-    border: 1px solid #c9b28f;
-}
-
-/* Base styling for job buttons */
-.job-button {
-    background-color: #8e764c; /* Brown button color */
-    color: white;
-    border: none;
-    border-radius: 5px;
-    padding: 10px 15px;
-    margin: 5px;
-    cursor: pointer;
-    transition: background-color 0.2s; /* Smooth color transition */
-    font-family: inherit;
-}
-/* Base styling for upgrade buttons */
-.upgrade-button {
-    background-color: #758e4c; /*  Green button color */
-    color: white;
-    border: none;
-    border-radius: 5px;
-    padding: 10px 15px;
-    margin: 5px;
-    cursor: pointer;
-    transition: background-color 0.2s; /* Smooth color transition */
-    font-family: inherit;
-}
-
-/* Hover effect for job buttons */
-.job-button:hover {
-    background-color: #a68a57; /* Lighter brown on hover */
-}
-/* Hover effect for job buttons */
-.upgrade-button:hover {
-    background-color: #8fb35d; /* Lighter brown on hover */
-}
-
-/* Disabled state for job buttons */
-.job-button:disabled {
-    background-color: #b5a990; /* Grayed out color */
-    cursor: not-allowed;
-}
-/* Disabled state for upgrade buttons */
-.upgrade-button:disabled {
-    background-color: #b5a990; /* Grayed out color */
-    cursor: not-allowed;
-}
-
-/* Layout for job button information */
-.job-info {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-    margin-bottom: 5px;
-}
-/* Layout for upgrade button information */
-.upgrade-info {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-    margin-bottom: 5px;
-}
-
-/* Gold particle animation element */
-.gold-particle {
-    position: absolute;
-    font-size: 1.5rem;
-    pointer-events: none; /* Allow clicks to pass through */
-    animation: float-up 1s ease-out forwards; /* Apply floating animation */
-}
-
-/* Autosave notification styling */
-.autosave-notification {
-    position: fixed;
-    bottom: 10px;
-    right: 10px;
-    background-color: rgba(0, 0, 0, 0.6); /* Semi-transparent background */
-    color: white;
-    padding: 8px 12px;
-    border-radius: 5px;
-    font-size: 0.9rem;
-    opacity: 0; /* Start invisible */
-    transition: opacity 0.3s; /* Fade in/out transition */
-}
-
-/* Visible state for autosave notification */
-.autosave-notification.show {
-    opacity: 1;
-}
-
-/* Keyframes for gold particle floating animation */
-@keyframes float-up {
-    0% {
-        transform: translateY(0) scale(1);
-        opacity: 1;
-    }
-    100% {
-        transform: translateY(-100px) scale(0.5); /* Float up and fade away */
-        opacity: 0;
-    }
-}
-
-/* job section layout */
-.job-section {
-    text-align: left;
-}
-/* upgrade section layout */
-.upgrade-section {
-    text-align: left;
-}
-
-/* Header for jobs section */
-.job-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 10px;
-}
-/* Header for upgrades section */
-.upgrade-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 10px;
-}
-
-/* Title styling for job section */
-.job-title {
-    margin: 0;
-    color: #6b4423; /* Dark brown */
-}
-/* Title styling for upgrade section */
-.upgrade-title {
-    margin: 0;
-    color: #6b4423; /* Dark brown */
-}
-
-/* Specific styling for soldier job button */
-.job-button.soldier {
-    background-color: #8e4c4c; /* Reddish brown for soldiers */
-}
-/* Specific styling for soldier upgrade button */
-.upgrade-button.soldier {
-    background-color: #8e4c4c; /* Reddish brown for soldiers */
-}
-
-/* Hover effect for soldier button */
-.job-button.soldier:hover {
-    background-color: #a65757; /* Lighter reddish brown */
-}
-/* Hover effect for soldier button */
-.upgrade-button.soldier:hover {
-    background-color: #a65757; /* Lighter reddish brown */
-}
-
-/* Specific styling for wizard job button */
-.job-button.wizard {
-    background-color: #4c568e; /* Blue for wizards */
-}
-/* Specific styling for wizard upgrade button */
-.upgrade-button.wizard {
-    background-color: #4c568e; /* Blue for wizards */
-}
-
-/* Hover effect for wizard button */
-.job-button.wizard:hover {
-    background-color: #5763a6; /* Lighter blue */
-}
-/* Hover effect for wizard button */
-.upgrade-button.wizard:hover {
-    background-color: #5763a6; /* Lighter blue */
-}
-
-/* Developer Overlay Styles */
-.dev-overlay {
-    position: fixed;
-    top: 10px;
-    left: 10px;
-    display: none; /* Hidden by default */
-    z-index: 1000; /* Ensure it's on top of other elements */
-    flex-direction: column; /* Stack items vertically */
-    align-items: flex-start; /* Align items to the start (left) */
-    gap: 10px; /* Space between items */
-}
-
-#reset-button {
-    background-color: #f44336; /* Red color */
-    color: white;
-    border: none;
-    padding: 10px 15px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 1rem;
-}
-
-#reset-button:hover {
-    background-color: #d32f2f; /* Darker red on hover */
-}
-
-/* Tab bar styling */
+/* Mobile Tab Navigation - Bottom Navigation Style */
 .tab {
-    overflow: hidden;
-    border: 1px solid #ccc;
-    background-color: #f1f1f1;
-    margin-bottom: 10px; /* Add some space below the tabs */
+  overflow: hidden;
+  display: flex;
+  position: sticky;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background-color: #e6d8b7;
+  border-top: 1px solid #c9b28f;
+  border-bottom: none;
+  z-index: 10;
+  margin-top: 15px;
+  box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
 }
 
-/* Style the buttons inside the tab */
 .tab button {
-    background-color: inherit;
-    float: left;
-    border: none;
-    outline: none;
-    cursor: pointer;
-    padding: 14px 16px;
-    transition: 0.3s;
-    font-size: 17px;
+  flex: 1;
+  background-color: inherit;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 16px 5px; /* Taller for better touch targets */
+  transition: 0.3s;
+  font-size: 1rem;
+  font-weight: bold;
+  color: #6b4423;
 }
 
-/* Change background color of buttons on hover */
-.tab button:hover {
-    background-color: #ddd;
+.tab button:active {
+  background-color: #d6c8a7; /* Feedback on touch */
 }
 
-/* Create an active/current tablink class */
 .tab button.active {
-    background-color: #ccc;
+  background-color: #c9b28f;
+  color: #4a2c0f;
 }
 
-/* Style the tab content */
+/* Tab content - Mobile First */
 .tabcontent {
-    display: none; /* Hide by default */
-    padding: 6px 12px;
-    border: 1px solid #ccc;
-    border-top: none;
+  display: none;
+  padding: 10px 5px;
+  border: 1px solid #c9b28f;
+  border-radius: 5px;
+  margin-top: 5px;
 }
 
-/* Container for job and upgrade buttons */
+/* Jobs section - Mobile First */
+.jobs, .upgrades {
+  margin-top: 15px;
+  padding: 12px 8px; /* Reduced padding */
+  background-color: #eadec1;
+  border-radius: 8px;
+  border: 1px solid #c9b28f;
+}
+
+/* Job and upgrade containers - Mobile First */
 .job-container, .upgrade-container {
-    margin-bottom: 15px;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
+  margin-bottom: 12px;
+  padding: 12px 8px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
 }
-/* Quantity button styling */
+
+/* Job and upgrade info layout - Mobile First */
+.job-info, .upgrade-info {
+  display: flex;
+  flex-direction: column; /* Stack vertically on mobile */
+  align-items: flex-start;
+  width: 100%;
+  gap: 8px;
+}
+
+/* Quantity button container */
+.quantity-buttons {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  margin-top: 8px;
+}
+
+/* Base button styling - Mobile First, Touch Optimized */
+.job-button, .upgrade-button, .quantity-button {
+  background-color: #8e764c;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 12px 15px; /* Larger for touch */
+  margin: 3px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 1rem; /* Larger for readability */
+  min-height: 48px; /* Minimum touch target size */
+  min-width: 48px; /* Minimum touch target size */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.upgrade-button {
+  background-color: #758e4c;
+}
+
+/* Specific job/upgrade button styling */
+.job-button.soldier, .upgrade-button.soldier {
+  background-color: #8e4c4c;
+}
+
+.job-button.wizard, .upgrade-button.wizard {
+  background-color: #4c568e;
+}
+
+/* Active/pressed state for buttons - Mobile optimized */
+.job-button:active, .upgrade-button:active, .quantity-button:active {
+  opacity: 0.8;
+  transform: scale(0.98);
+}
+
+/* Disabled state for buttons */
+.job-button:disabled, .upgrade-button:disabled, .quantity-button:disabled {
+  background-color: #b5a990;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* Quantity button specific styling */
 .quantity-button {
-    font-size: 0.8rem;
-    padding: 5px 10px;
-    margin-left: 5px; /* Add some space between buttons */
-    background-color: #eee; /* Light gray background */
-    color: #333;
-    border: 1px solid #ccc;
+  flex: 1;
+  background-color: #e0d5bc;
+  color: #4a2c0f;
+  font-weight: bold;
+  font-size: 0.9rem;
+  padding: 10px 0;
 }
 
-.quantity-button:hover {
-    background-color: #ddd; /* Slightly darker on hover */
+/* Gold particle animation */
+.gold-particle {
+  position: absolute;
+  font-size: 1.5rem;
+  pointer-events: none;
+  animation: float-up 1s ease-out forwards;
+  z-index: 50; /* Ensure visible above other elements */
 }
 
-.quantity-button:disabled {
-    background-color: #ccc;
-    cursor: not-allowed;
+@keyframes float-up {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-80px) scale(0.5);
+    opacity: 0;
+  }
 }
 
-/* Style the number format toggle */
-.dev-overlay label {
-    display: flex;
-    align-items: center;
-    gap: 5px; /* Space between checkbox and text */
-    color: white; /* White text for better visibility on dark background */
+/* Autosave notification - Mobile Friendly */
+.autosave-notification {
+  position: fixed;
+  bottom: 70px; /* Above bottom tab navigation */
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 10px 15px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  opacity: 0;
+  transition: opacity 0.3s;
+  z-index: 100;
 }
 
-/* Prestige button styling */
+.autosave-notification.show {
+  opacity: 1;
+}
+
+/* Prestige button - Mobile Friendly */
 .prestige-button {
-    background-color: #a88734; /* A kind of bronze/older gold color */
-    color: white;
-    border: none;
-    border-radius: 8px;
-    padding: 12px 20px;
-    font-size: 1.1rem;
-    cursor: pointer;
-    font-family: inherit;
-    transition: background-color 0.2s, transform 0.1s;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    margin-top: 15px; /* Space it out a bit */
+  background-color: #a88734;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 15px 20px; /* Larger for touch */
+  width: 100%; /* Full width on mobile */
+  font-size: 1.1rem;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background-color 0.2s;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  margin-top: 15px;
+  min-height: 50px; /* Good touch target */
 }
 
-.prestige-button:hover {
-    background-color: #b99a4f; /* Lighter bronze on hover */
-    transform: scale(1.02);
+.prestige-button:active {
+  background-color: #8d7130;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 .prestige-button:disabled {
-    background-color: #776544; /* Darker, desaturated bronze when disabled */
-    cursor: not-allowed;
-    box-shadow: none;
-    transform: none;
+  background-color: #776544;
+  cursor: not-allowed;
+  box-shadow: none;
 }
 
-/* Prestige area - center the button if needed */
-.prestige-area {
-    display: flex;
-    justify-content: center;
-    width: 100%; /* Make sure it takes full width of its container */
+/* Mobile-friendly developer overlay */
+.dev-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.9);
+  display: none;
+  z-index: 1000;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.dev-overlay > div {
+  width: 100%;
+  margin-bottom: 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+.dev-overlay label {
+  color: white;
+  margin-bottom: 5px;
+  display: block;
+}
+
+.dev-overlay input {
+  padding: 12px;
+  font-size: 16px;
+  width: 100%;
+  border-radius: 5px;
+  border: none;
+  margin-bottom: 10px;
+}
+
+.dev-overlay button {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1rem;
+  margin: 10px 0;
+  width: 100%;
+  max-width: 300px;
+}
+
+#reset-button {
+  background-color: #f44336;
+}
+
+#reset-button:active {
+  background-color: #d32f2f;
+}
+
+#dev-set-values:active {
+  background-color: #3e8e41;
+}
+
+#manual-save-button {
+  background-color: #2196F3;
+}
+
+#manual-save-button:active {
+  background-color: #0b7dda;
+}
+
+/* ===== Media Queries for Larger Screens ===== */
+
+/* Tablets (portrait) and larger */
+@media screen and (min-width: 600px) {
+  body {
+    padding: 15px;
+  }
+  
+  .game-container {
+    padding: 20px;
+    max-width: 550px;
+  }
+  
+  h1 {
+    font-size: 2rem;
+  }
+  
+  .stats {
+    justify-content: space-around;
+    padding: 15px;
+  }
+  
+  .stat-item {
+    width: 75px;
+    height: 75px;
+  }
+  
+  .stat-icon {
+    font-size: 2rem;
+  }
+  
+  .stat-value {
+    font-size: 1rem;
+  }
+  
+  .job-info, .upgrade-info {
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  
+  .quantity-buttons {
+    width: auto;
+  }
+  
+  .tab {
+    position: static;
+    margin-bottom: 10px;
+    box-shadow: none;
+    border: 1px solid #ccc;
+  }
+  
+  .tabcontent {
+    border-top: none;
+  }
+  
+  .prestige-button {
+    width: auto;
+    min-width: 250px;
+  }
+}
+
+/* Laptops and larger */
+@media screen and (min-width: 992px) {
+  .game-container {
+    max-width: 600px;
+    padding: 25px;
+  }
+  
+  .click-button {
+    width: 120px;
+    height: 120px;
+  }
+  
+  .click-button:hover {
+    background-color: #ffdf33;
+    transform: scale(1.05);
+  }
+  
+  .job-button:hover, .upgrade-button:hover {
+    opacity: 0.9;
+  }
+  
+  .job-button.soldier:hover {
+    background-color: #a65757;
+  }
+  
+  .job-button.wizard:hover {
+    background-color: #5763a6;
+  }
+  
+  .upgrade-button:hover {
+    background-color: #8fb35d;
+  }
+  
+  .upgrade-button.soldier:hover {
+    background-color: #a65757;
+  }
+  
+  .upgrade-button.wizard:hover {
+    background-color: #5763a6;
+  }
+  
+  .quantity-button:hover {
+    background-color: #d6c8a7;
+  }
+  
+  .prestige-button:hover {
+    background-color: #b99a4f;
+  }
+  
+  /* Restore hover states for larger screens with pointer devices */
+  @media (hover: hover) {
+    .tab button:hover {
+      background-color: #d6c8a7;
+    }
+  }
+}
+
+/* Dark mode support (prefers-color-scheme) */
+@media (prefers-color-scheme: dark) {
+  body {
+    background-color: #2d2518;
+    color: #e8d7b0;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%232d2518"/><path d="M0,0 L100,100 M100,0 L0,100" stroke="%23352e1f" stroke-width="1"/></svg>');
+  }
+  
+  .game-container {
+    background-color: #3a3122;
+    border-color: #5a4a2e;
+  }
+  
+  h1 {
+    color: #e0c088;
+    text-shadow: 1px 1px 2px #1a1610;
+    border-bottom-color: #5a4a2e;
+  }
+  
+  .stats, .jobs, .upgrades {
+    background-color: #352e1f;
+    border-color: #5a4a2e;
+  }
+  
+  .tab {
+    background-color: #2d2518;
+    border-color: #5a4a2e;
+  }
+  
+  .tab button {
+    color: #e0c088;
+  }
+  
+  .tab button.active {
+    background-color: #5a4a2e;
+    color: #e8d7b0;
+  }
+  
+  .job-container, .upgrade-container {
+    border-color: #5a4a2e;
+  }
+  
+  .quantity-button {
+    background-color: #4a3e27;
+    color: #e8d7b0;
+  }
+  
+  .prestige-button {
+    background-color: #8d7130;
+  }
+  
+  .prestige-button:disabled {
+    background-color: #4a3e27;
+  }
+  
+  .stat-item {
+    background-color: #3d3423;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  }
+  
+  .stat-value {
+    color: #e0c088;
+  }
+  
+  .stat-label {
+    background-color: rgba(224, 192, 136, 0.9);
+    color: #2d2518;
+  }
+  
+  .stat-item:active {
+    background-color: #4a3e27;
+  }
 }

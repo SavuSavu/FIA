@@ -197,6 +197,124 @@ let devOverlayVisible = false;
 // Store balance parameters - assign it immediately to BALANCE_DATA
 let balanceData = BALANCE_DATA;
 
+// Sound management system
+const SOUNDS = {
+    goldClick: 'sounds/coin-click.mp3',
+    statsTap: 'sounds/stat-tap.mp3',
+    buyJob: 'sounds/buy-job.mp3',
+    buyUpgrade: 'sounds/buy-upgrade.mp3',
+    levelUp: 'sounds/level-up.mp3',
+    error: 'sounds/error.mp3',
+    prestige: 'sounds/prestige.mp3'
+};
+
+// Sound cache to prevent reloading sounds
+const soundCache = {};
+
+// Sound settings
+let soundEnabled = true;
+
+/**
+ * Loads a sound file and caches it
+ * @param {string} soundPath - Path to the sound file
+ * @returns {HTMLAudioElement} - Audio element
+ */
+function loadSound(soundPath) {
+    if (!soundCache[soundPath]) {
+        const audio = new Audio(soundPath);
+        audio.load();
+        soundCache[soundPath] = audio;
+    }
+    return soundCache[soundPath];
+}
+
+/**
+ * Plays a sound by its key in the SOUNDS object
+ * @param {string} soundKey - Key of the sound in SOUNDS object
+ */
+function playSound(soundKey) {
+    if (!soundEnabled) return;
+    
+    try {
+        const soundPath = SOUNDS[soundKey];
+        if (!soundPath) return;
+        
+        const audio = loadSound(soundPath);
+        
+        // Reset the audio to the beginning if it's already playing
+        audio.currentTime = 0;
+        audio.play().catch(error => {
+            console.log(`Sound error: ${error.message}`);
+        });
+    } catch (error) {
+        console.error('Error playing sound:', error);
+    }
+}
+
+/**
+ * Toggles sound on/off
+ * @returns {boolean} New sound state
+ */
+function toggleSound() {
+    soundEnabled = !soundEnabled;
+    localStorage.setItem('soundEnabled', soundEnabled.toString());
+    return soundEnabled;
+}
+
+// Toggle sound when S key is pressed
+document.addEventListener('keydown', (event) => {
+    if (event.key === 's' || event.key === 'S') {
+        const newSoundState = toggleSound();
+        alert(`Sound ${newSoundState ? 'enabled' : 'disabled'}`);
+    }
+});
+
+// Load sound preference from localStorage
+function loadSoundPreference() {
+    const savedSoundPreference = localStorage.getItem('soundEnabled');
+    if (savedSoundPreference !== null) {
+        soundEnabled = savedSoundPreference === 'true';
+    }
+}
+
+// Add sound toggle to the developer overlay
+function addSoundToggleToDevOverlay() {
+    const devOverlay = document.getElementById('dev-overlay');
+    
+    if (!document.getElementById('sound-toggle-container')) {
+        const soundToggleContainer = document.createElement('div');
+        soundToggleContainer.id = 'sound-toggle-container';
+        soundToggleContainer.style.marginTop = '15px';
+        
+        const soundToggleLabel = document.createElement('label');
+        soundToggleLabel.for = 'sound-toggle';
+        soundToggleLabel.style.color = 'white';
+        soundToggleLabel.style.display = 'flex';
+        soundToggleLabel.style.alignItems = 'center';
+        soundToggleLabel.style.cursor = 'pointer';
+        
+        const soundToggleInput = document.createElement('input');
+        soundToggleInput.type = 'checkbox';
+        soundToggleInput.id = 'sound-toggle';
+        soundToggleInput.checked = soundEnabled;
+        soundToggleInput.style.marginRight = '8px';
+        
+        soundToggleInput.addEventListener('change', () => {
+            soundEnabled = soundToggleInput.checked;
+            localStorage.setItem('soundEnabled', soundEnabled.toString());
+        });
+        
+        const soundToggleText = document.createTextNode('Enable Sound Effects');
+        
+        soundToggleLabel.appendChild(soundToggleInput);
+        soundToggleLabel.appendChild(soundToggleText);
+        soundToggleContainer.appendChild(soundToggleLabel);
+        
+        // Add the toggle before the close button at the end
+        devOverlay.insertBefore(soundToggleContainer, document.getElementById('close-dev-overlay'));
+    }
+}
+
 /**
  * Saves current game state to localStorage with enhanced reliability
  * @returns {boolean} Whether the save was successful
@@ -383,6 +501,10 @@ clickButton.addEventListener('click', (event) => {
     gameState.lifetimeGold += goldGained;
     console.log(`Lifetime gold: ${gameState.lifetimeGold}, Threshold: ${balanceData.prestige.unlockThreshold}`);
     clickButton.classList.add('clicked');
+    
+    // Play gold click sound
+    playSound('goldClick');
+    
     setTimeout(() => {
         clickButton.classList.remove('clicked');
     }, 100);
@@ -586,20 +708,48 @@ function buyUpgrade(upgradeId, quantity) {
 
 // --- Event Listeners for Jobs ---
 document.querySelectorAll('.job-button').forEach(button => {
+    const originalClickHandler = button.onclick;
+    
     button.addEventListener('click', () => {
         const jobType = button.dataset.job;
         const quantity = parseInt(button.dataset.quantity, 10) || button.dataset.quantity; // Handle "max"
-        console.log(`Attempting to buy ${quantity} ${jobType}`); // Add this debug line
+        console.log(`Attempting to buy ${quantity} ${jobType}`);
+        
+        // Store gold before purchase
+        const goldBefore = gameState.gold;
+        
         buyJob(jobType, quantity);
+        
+        // If gold changed, a purchase was made
+        if (goldBefore > gameState.gold) {
+            playSound('buyJob');
+        } else {
+            // Not enough gold
+            playSound('error');
+        }
     });
 });
 
 // --- Event Listeners for Upgrades ---
 document.querySelectorAll('.upgrade-button').forEach(button => {
+    const originalClickHandler = button.onclick;
+    
     button.addEventListener('click', () => {
         const upgradeId = button.dataset.upgrade;
         const quantity = parseInt(button.dataset.quantity, 10) || button.dataset.quantity; // Handle "max"
+        
+        // Store gold before purchase
+        const goldBefore = gameState.gold;
+        
         buyUpgrade(upgradeId, quantity);
+        
+        // If gold changed, a purchase was made
+        if (goldBefore > gameState.gold) {
+            playSound('buyUpgrade');
+        } else {
+            // Not enough gold
+            playSound('error');
+        }
     });
 });
 
@@ -623,13 +773,55 @@ document.addEventListener('visibilitychange', () => {
     }
 });
 
+// Detect if user is on a mobile device
+const isMobileDevice = () => {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
+           (window.innerWidth <= 800);
+};
+
+// Mobile specific adjustments
+const applyMobileSpecificBehavior = () => {
+    if (isMobileDevice()) {
+        // Add active class to buttons when touched for feedback
+        const allButtons = document.querySelectorAll('button');
+        allButtons.forEach(button => {
+            button.addEventListener('touchstart', function() {
+                this.classList.add('active-touch');
+            }, { passive: true });
+            
+            button.addEventListener('touchend', function() {
+                this.classList.remove('active-touch');
+            }, { passive: true });
+        });
+        
+        // Prevent zooming on double tap for gold button
+        clickButton.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            // The click event will still fire
+        }, { passive: false });
+    }
+};
+
 // Developer Tools (Toggle Overlay)
 document.addEventListener('keydown', (event) => {
     if (event.ctrlKey && event.shiftKey) {
-        devOverlayVisible = !devOverlayVisible; // Toggle visibility state
-        devOverlay.style.display = devOverlayVisible ? 'block' : 'none'; // Update display based on state
+        toggleDevOverlay();
     }
 });
+
+// Function to toggle developer overlay
+function toggleDevOverlay() {
+    devOverlayVisible = !devOverlayVisible;
+    devOverlay.style.display = devOverlayVisible ? 'flex' : 'none';
+}
+
+// Close button for dev overlay (especially helpful on mobile)
+const closeDevOverlayButton = document.getElementById('close-dev-overlay');
+if (closeDevOverlayButton) {
+    closeDevOverlayButton.addEventListener('click', () => {
+        toggleDevOverlay();
+    });
+}
 
 // Developer Set Values Button
 devSetValuesButton.addEventListener('click', () => {
@@ -765,13 +957,23 @@ function prestigeGame() {
 
         updateUI();
         saveGame();
+        playSound('prestige');
         alert(`Prestiged! Earned ${pointsToGain} Prestige Points. Gold gain bonus increased to +${formatNumber((gameState.prestigeBonusMultiplier - 1) * 100)}%`); // Notification
 
     } else {
+        playSound('error');
         alert("Not enough lifetime gold to prestige yet!"); // Inform player if no prestige points are earned
     }
 }
 
+// Add sound to stat items
+function addSoundToStatItems() {
+    document.querySelectorAll('.stat-item').forEach(statItem => {
+        statItem.addEventListener('click', () => {
+            playSound('statsTap');
+        });
+    });
+}
 
 // --- Game Initialization ---
 
@@ -790,10 +992,20 @@ async function initGame() {
     gameState.wizardJobGPC = balanceData.jobs.wizards.goldPerClick;
 
     loadGame();
+    loadSoundPreference();
     openTab('jobs-content');
     jobsTabButton.classList.add("active");
     numberFormatToggle.checked = gameState.useScientificNotation;
     updateUI();
+    
+    // Apply mobile-specific behavior
+    applyMobileSpecificBehavior();
+
+    // Add sound toggle to dev overlay
+    addSoundToggleToDevOverlay();
+    
+    // Add sound to stat items
+    addSoundToStatItems();
 
     if (!localStorage.getItem('hasVisited')) {
         alert("Welcome to Fantasy Idle Adventure!\n\n" +
@@ -801,7 +1013,8 @@ async function initGame() {
             "Use your gold to hire Miners, Soldiers, and Wizards (Jobs).\n" +
             "Miners and Soldiers generate gold passively.\n" +
             "Wizards increase the gold you earn per click.\n" +
-            "Buy Upgrades to enhance your Jobs' production!\n" +
+            "Buy Upgrades to enhance your Jobs' production!\n\n" +
+            "Press 'S' to toggle sounds on/off.\n" +
             "Good luck!");
         localStorage.setItem('hasVisited', 'true');
     }
