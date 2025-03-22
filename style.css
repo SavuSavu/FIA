@@ -1,0 +1,459 @@
+/**
+ * ================================================================
+ * STYLESHEET README
+ * ================================================================
+ *
+ * Purpose:
+ * This stylesheet provides all visual styling for the Fantasy Idle Adventure game.
+ *
+ * Components styled:
+ * - Main layout and containers
+ * - Resource displays
+ * - Click button and animations
+ * - Job buttons and sections (including quantity buttons)
+ * - Upgrade buttons and sections (including quantity buttons)
+ * - Notification elements
+ * - Developer overlay and reset button
+ * - Tab bar and tab content
+ * - Number format toggle
+ * - Prestige elements (button, bonus display, points display)
+ *
+ * Changelog:
+ * v1.0.0 - Initial implementation with basic fantasy styling
+ * v1.0.1 - Added animations for gold particles and button feedback
+ * v1.0.2 - Added styles for developer overlay and reset button
+ * v1.0.3 - Added styles for new "Upgrades" section and buttons.  Renamed "Upgrades" to "Jobs" in UI.
+ * v1.0.4 - Added styles for tab bar and tab content; implemented tab switching.
+ * v1.0.5 - Added styles for quantity buttons (x1, x10, Max) for jobs and upgrades.
+ * v1.0.6 - Adjusted layout to place quantity buttons on the same line as job/upgrade info.
+ * v1.0.7 - Added styles for the number format toggle in the developer overlay.
+ * v1.0.8 - Added styles for prestige elements (button, points display, bonus display).
+ *
+ * TODO:
+ * - Add responsive design for mobile devices
+ * - Create dark mode theme
+ * - Add more visual effects for upgrades
+ * - Implement progress bars for next upgrades
+ * ================================================================
+ */
+
+/* Base styling for body and general layout */
+body {
+    font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, serif;
+    background-color: #f5e9d0; /* Light parchment color */
+    color: #4a2c0f; /* Dark brown text */
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    /* SVG background pattern for texture */
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23f5e9d0"/><path d="M0,0 L100,100 M100,0 L0,100" stroke="%23e8d7b0" stroke-width="1"/></svg>');
+    text-align: center;
+}
+
+/* Main container for the game */
+.game-container {
+    background-color: #f9f2e1; /* Lighter parchment for contrast */
+    border: 2px solid #8b6b3d; /* Brown border */
+    border-radius: 8px;
+    padding: 20px;
+    max-width: 600px;
+    width: 90%;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
+}
+
+/* Game title styling */
+h1 {
+    color: #7d4924; /* Rich brown color */
+    margin-top: 0;
+    font-size: 2rem;
+    text-shadow: 1px 1px 2px #d9c7a9; /* Text shadow for depth */
+    border-bottom: 2px solid #d9b679; /* Gold-like border */
+    padding-bottom: 10px;
+}
+
+/* Resource counter display */
+.resources {
+    font-size: 1.5rem;
+    margin: 15px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+/* Prestige info display (bonus) */
+.prestige-info {
+    font-size: 1rem;
+    margin-bottom: 10px;
+    color: #6b4423; /* Dark brown, same as job titles */
+}
+
+/* Game statistics display area */
+.stats {
+    display: flex;
+    justify-content: space-around;
+    margin: 15px 0;
+    font-size: 1.1rem;
+    padding: 10px;
+    background-color: #f0e4c9; /* Slightly darker background for contrast */
+    border-radius: 5px;
+}
+
+/* Container for the clickable area */
+.click-area {
+    margin: 20px 0;
+}
+
+/* Main clickable button styling */
+.click-button {
+    background-color: #ffd700; /* Gold color */
+    border: 3px solid #ba8c00; /* Darker gold border */
+    border-radius: 50%; /* Circle shape */
+    width: 120px;
+    height: 120px;
+    font-size: 2.5rem;
+    cursor: pointer;
+    transition: transform 0.1s, box-shadow 0.1s; /* Smooth transition for animations */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3); /* Shadow for 3D effect */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+}
+
+/* Hover effect for click button */
+.click-button:hover {
+    background-color: #ffdf33; /* Lighter gold on hover */
+    transform: scale(1.05); /* Slightly enlarge */
+}
+
+/* Active/clicked state for click button */
+.click-button:active, .click-button.clicked {
+    transform: scale(0.95); /* Slightly shrink when clicked */
+    box-shadow: 0 2px 3px rgba(0, 0, 0, 0.3); /* Reduced shadow for pressed effect */
+}
+
+/* Jobs section styling */
+.jobs {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #eadec1;
+    border-radius: 8px;
+    border: 1px solid #c9b28f;
+}
+
+/* Upgrades section styling */
+.upgrades {
+     margin-top: 20px;
+    padding: 15px;
+    background-color: #eadec1;
+    border-radius: 8px;
+    border: 1px solid #c9b28f;
+}
+
+/* Base styling for job buttons */
+.job-button {
+    background-color: #8e764c; /* Brown button color */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 15px;
+    margin: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s; /* Smooth color transition */
+    font-family: inherit;
+}
+/* Base styling for upgrade buttons */
+.upgrade-button {
+    background-color: #758e4c; /*  Green button color */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 15px;
+    margin: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s; /* Smooth color transition */
+    font-family: inherit;
+}
+
+/* Hover effect for job buttons */
+.job-button:hover {
+    background-color: #a68a57; /* Lighter brown on hover */
+}
+/* Hover effect for job buttons */
+.upgrade-button:hover {
+    background-color: #8fb35d; /* Lighter brown on hover */
+}
+
+/* Disabled state for job buttons */
+.job-button:disabled {
+    background-color: #b5a990; /* Grayed out color */
+    cursor: not-allowed;
+}
+/* Disabled state for upgrade buttons */
+.upgrade-button:disabled {
+    background-color: #b5a990; /* Grayed out color */
+    cursor: not-allowed;
+}
+
+/* Layout for job button information */
+.job-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 5px;
+}
+/* Layout for upgrade button information */
+.upgrade-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 5px;
+}
+
+/* Gold particle animation element */
+.gold-particle {
+    position: absolute;
+    font-size: 1.5rem;
+    pointer-events: none; /* Allow clicks to pass through */
+    animation: float-up 1s ease-out forwards; /* Apply floating animation */
+}
+
+/* Autosave notification styling */
+.autosave-notification {
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+    background-color: rgba(0, 0, 0, 0.6); /* Semi-transparent background */
+    color: white;
+    padding: 8px 12px;
+    border-radius: 5px;
+    font-size: 0.9rem;
+    opacity: 0; /* Start invisible */
+    transition: opacity 0.3s; /* Fade in/out transition */
+}
+
+/* Visible state for autosave notification */
+.autosave-notification.show {
+    opacity: 1;
+}
+
+/* Keyframes for gold particle floating animation */
+@keyframes float-up {
+    0% {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(-100px) scale(0.5); /* Float up and fade away */
+        opacity: 0;
+    }
+}
+
+/* job section layout */
+.job-section {
+    text-align: left;
+}
+/* upgrade section layout */
+.upgrade-section {
+    text-align: left;
+}
+
+/* Header for jobs section */
+.job-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+/* Header for upgrades section */
+.upgrade-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+/* Title styling for job section */
+.job-title {
+    margin: 0;
+    color: #6b4423; /* Dark brown */
+}
+/* Title styling for upgrade section */
+.upgrade-title {
+    margin: 0;
+    color: #6b4423; /* Dark brown */
+}
+
+/* Specific styling for soldier job button */
+.job-button.soldier {
+    background-color: #8e4c4c; /* Reddish brown for soldiers */
+}
+/* Specific styling for soldier upgrade button */
+.upgrade-button.soldier {
+    background-color: #8e4c4c; /* Reddish brown for soldiers */
+}
+
+/* Hover effect for soldier button */
+.job-button.soldier:hover {
+    background-color: #a65757; /* Lighter reddish brown */
+}
+/* Hover effect for soldier button */
+.upgrade-button.soldier:hover {
+    background-color: #a65757; /* Lighter reddish brown */
+}
+
+/* Specific styling for wizard job button */
+.job-button.wizard {
+    background-color: #4c568e; /* Blue for wizards */
+}
+/* Specific styling for wizard upgrade button */
+.upgrade-button.wizard {
+    background-color: #4c568e; /* Blue for wizards */
+}
+
+/* Hover effect for wizard button */
+.job-button.wizard:hover {
+    background-color: #5763a6; /* Lighter blue */
+}
+/* Hover effect for wizard button */
+.upgrade-button.wizard:hover {
+    background-color: #5763a6; /* Lighter blue */
+}
+
+/* Developer Overlay Styles */
+.dev-overlay {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    display: none; /* Hidden by default */
+    z-index: 1000; /* Ensure it's on top of other elements */
+    flex-direction: column; /* Stack items vertically */
+    align-items: flex-start; /* Align items to the start (left) */
+    gap: 10px; /* Space between items */
+}
+
+#reset-button {
+    background-color: #f44336; /* Red color */
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+#reset-button:hover {
+    background-color: #d32f2f; /* Darker red on hover */
+}
+
+/* Tab bar styling */
+.tab {
+    overflow: hidden;
+    border: 1px solid #ccc;
+    background-color: #f1f1f1;
+    margin-bottom: 10px; /* Add some space below the tabs */
+}
+
+/* Style the buttons inside the tab */
+.tab button {
+    background-color: inherit;
+    float: left;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 14px 16px;
+    transition: 0.3s;
+    font-size: 17px;
+}
+
+/* Change background color of buttons on hover */
+.tab button:hover {
+    background-color: #ddd;
+}
+
+/* Create an active/current tablink class */
+.tab button.active {
+    background-color: #ccc;
+}
+
+/* Style the tab content */
+.tabcontent {
+    display: none; /* Hide by default */
+    padding: 6px 12px;
+    border: 1px solid #ccc;
+    border-top: none;
+}
+
+/* Container for job and upgrade buttons */
+.job-container, .upgrade-container {
+    margin-bottom: 15px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+/* Quantity button styling */
+.quantity-button {
+    font-size: 0.8rem;
+    padding: 5px 10px;
+    margin-left: 5px; /* Add some space between buttons */
+    background-color: #eee; /* Light gray background */
+    color: #333;
+    border: 1px solid #ccc;
+}
+
+.quantity-button:hover {
+    background-color: #ddd; /* Slightly darker on hover */
+}
+
+.quantity-button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+/* Style the number format toggle */
+.dev-overlay label {
+    display: flex;
+    align-items: center;
+    gap: 5px; /* Space between checkbox and text */
+    color: white; /* White text for better visibility on dark background */
+}
+
+/* Prestige button styling */
+.prestige-button {
+    background-color: #a88734; /* A kind of bronze/older gold color */
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 20px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background-color 0.2s, transform 0.1s;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    margin-top: 15px; /* Space it out a bit */
+}
+
+.prestige-button:hover {
+    background-color: #b99a4f; /* Lighter bronze on hover */
+    transform: scale(1.02);
+}
+
+.prestige-button:disabled {
+    background-color: #776544; /* Darker, desaturated bronze when disabled */
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+}
+
+/* Prestige area - center the button if needed */
+.prestige-area {
+    display: flex;
+    justify-content: center;
+    width: 100%; /* Make sure it takes full width of its container */
+}

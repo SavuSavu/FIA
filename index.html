@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fantasy Idle Adventure</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="game-container">
+        <h1>Fantasy Idle Adventure</h1>
+        <div class="resources">
+            <span>💰</span>
+            <span id="gold-count">0</span>
+            <span>gold</span>
+            <span>⭐</span>
+            <span id="prestige-points">0</span>
+            <span>Prestige Points</span>
+        </div>
+        <div class="prestige-info">Bonus: <span id="prestige-bonus"></span></div>
+        <div class="stats">
+            <div>
+                <div>⛏️ Per Click: <span id="gold-per-click">1</span></div>
+                <div>⏱️ Per Second: <span id="gold-per-second">0</span></div>
+            </div>
+            <div>
+                <div>👷 Miners: <span id="miner-job-count">0</span></div>
+                <div>⚔️ Soldiers: <span id="soldier-job-count">0</span></div>
+                <div>🧙 Wizards: <span id="wizard-job-count">0</span></div>
+            </div>
+        </div>
+        <div class="click-area">
+            <div class="click-button" id="click-button">💰</div>
+        </div>
+        <div class="prestige-area">
+            <button class="prestige-button" id="prestige-button" disabled>Prestige (Reach 1M Gold to Unlock)</button>
+        </div>
+
+        <!-- Tab Bar -->
+        <div class="tab">
+            <button class="tablinks" id="jobs-tab-button">Jobs</button>
+            <button class="tablinks" id="upgrades-tab-button">Upgrades</button>
+        </div>
+
+        <!-- Tab Content -->
+        <div id="jobs-content" class="tabcontent">
+            <div class="jobs">
+                <div class="job-header">
+                    <h2 class="job-title">Jobs</h2>
+                </div>
+                <div class="job-section">
+                    <div class="job-container">
+                        <span>⛏️ Miner (Job)</span>
+                        <div class="job-info">
+                            <span>+<span id="miner-gps">1</span> gold/sec</span>
+                            <span>Cost: <span id="miner-job-cost">10</span> gold</span>
+                            <button class="job-button quantity-button" data-job="miners" data-quantity="1">x1</button>
+                            <button class="job-button quantity-button" data-job="miners" data-quantity="10">x10</button>
+                            <button class="job-button quantity-button" data-job="miners" data-quantity="max">Max</button>
+                        </div>
+                    </div>
+                    <div class="job-container">
+                        <span>⚔️ Soldier (Job)</span>
+                         <div class="job-info">
+                            <span>+<span id="soldier-gps">5</span> gold/sec</span>
+                            <span>Cost: <span id="soldier-job-cost">50</span> gold</span>
+                            <button class="job-button quantity-button soldier" data-job="soldiers" data-quantity="1">x1</button>
+                            <button class="job-button quantity-button soldier" data-job="soldiers" data-quantity="10">x10</button>
+                            <button class="job-button quantity-button soldier" data-job="soldiers" data-quantity="max">Max</button>
+                        </div>
+                    </div>
+                    <div class="job-container">
+                        <span>🧙 Wizard (Job)</span>
+                        <div class="job-info">
+                            <span>+2 gold/click</span>
+                            <span>Cost: <span id="wizard-job-cost">100</span> gold</span>
+                            <button class="job-button quantity-button wizard" data-job="wizards" data-quantity="1">x1</button>
+                            <button class="job-button quantity-button wizard" data-job="wizards" data-quantity="10">x10</button>
+                            <button class="job-button quantity-button wizard" data-job="wizards" data-quantity="max">Max</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="upgrades-content" class="tabcontent">
+            <div class="upgrades">
+                <div class="upgrade-header">
+                    <h2 class="upgrade-title">Upgrades</h2>
+                </div>
+                <div class="upgrade-section">
+                    <!-- Miner Upgrades -->
+                    <div class="upgrade-container">
+                        <span>⛏️ Sharpen Pickaxe (Miner)</span>
+                        <div class="upgrade-info">
+                            <span>+10% Miner GPS</span>
+                            <span>Level: <span id="upgrade-miner-sharp-pickaxe-level">0</span></span>
+                            <span>Cost: <span id="upgrade-miner-sharp-pickaxe-cost">50</span> gold</span>
+                            <button class="upgrade-button quantity-button" data-upgrade="miner-sharp-pickaxe" data-quantity="1">x1</button>
+                            <button class="upgrade-button quantity-button" data-upgrade="miner-sharp-pickaxe" data-quantity="10">x10</button>
+                            <button class="upgrade-button quantity-button" data-upgrade="miner-sharp-pickaxe" data-quantity="max">Max</button>
+                        </div>
+                    </div>
+
+                    <!-- Soldier Upgrades -->
+                    <div class="upgrade-container">
+                       <span>⚔️ Stronger Swords (Soldier)</span>
+                        <div class="upgrade-info">
+                            <span>+10% Soldier GPS</span>
+                            <span>Level: <span id="upgrade-soldier-stronger-swords-level">0</span></span>
+                            <span>Cost: <span id="upgrade-soldier-stronger-swords-cost">150</span> gold</span>
+                            <button class="upgrade-button quantity-button soldier" data-upgrade="soldier-stronger-swords" data-quantity="1">x1</button>
+                            <button class="upgrade-button quantity-button soldier" data-upgrade="soldier-stronger-swords" data-quantity="10">x10</button>
+                            <button class="upgrade-button quantity-button soldier" data-upgrade="soldier-stronger-swords" data-quantity="max">Max</button>
+                        </div>
+                    </div>
+
+                    <!-- Wizard Upgrades -->
+                    <div class="upgrade-container">
+                    <span>⚔️ Better Focus (Wizard)</span>
+                        <div class="upgrade-info">
+                            <span>+10% Wizard GPC</span>
+                            <span>Level: <span id="upgrade-wizard-better-focus-level">0</span></span>
+                            <span>Cost: <span id="upgrade-wizard-better-focus-cost">250</span> gold</span>
+                            <button class="upgrade-button quantity-button wizard" data-upgrade="wizard-better-focus" data-quantity="1">x1</button>
+                            <button class="upgrade-button quantity-button wizard" data-upgrade="wizard-better-focus" data-quantity="10">x10</button>
+                            <button class="upgrade-button quantity-button wizard" data-upgrade="wizard-better-focus" data-quantity="max">Max</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="autosave-notification" id="autosave-notification">Game saved!</div>
+
+    <!-- Developer Overlay (Hidden by default) -->
+   <div class="dev-overlay" id="dev-overlay">
+        <button id="reset-button">Reset Game</button>
+        <label for="number-format-toggle">
+            <input type="checkbox" id="number-format-toggle">
+            Use Scientific Notation
+        </label>
+
+        <div>
+            <label for="dev-gold">Gold:</label>
+            <input type="number" id="dev-gold" value="0" min="0">
+        </div>
+        <div>
+            <label for="dev-miners">Miners:</label>
+            <input type="number" id="dev-miners" value="0" min="0">
+        </div>
+        <div>
+            <label for="dev-soldiers">Soldiers:</label>
+            <input type="number" id="dev-soldiers" value="0" min="0">
+        </div>
+        <div>
+            <label for="dev-wizards">Wizards:</label>
+            <input type="number" id="dev-wizards" value="0" min="0">
+        </div>
+        <div>
+            <label for="dev-miner-upgrade">Miner Upgrade:</label>
+            <input type="number" id="dev-miner-upgrade" value="0" min="0">
+        </div>
+        <div>
+            <label for="dev-soldier-upgrade">Soldier Upgrade:</label>
+            <input type="number" id="dev-soldier-upgrade" value="0" min="0">
+        </div>
+        <div>
+            <label for="dev-wizard-upgrade">Wizard Upgrade:</label>
+            <input type="number" id="dev-wizard-upgrade" value="0" min="0">
+        </div>
+
+        <button id="dev-set-values">Set Values</button>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
