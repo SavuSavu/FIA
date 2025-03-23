@@ -80,6 +80,22 @@ let gameState = {
     prestigePoints: 0,          // Total prestige points earned
     prestigeBonusMultiplier: 1, // Multiplier to gold gain from prestige
     lifetimeGold: 0,            // Total gold earned in current prestige cycle
+    totalPrestiges: 0,          // Total number of prestiges performed
+    artifacts: {                // Artifacts unlocked through prestige
+        unlockedIds: [],        // Array of unlocked artifact IDs
+    },
+    artifactEffects: {          // Current active effects from artifacts
+        goldMultiplier: 1,      // Multiplier for all gold income
+        clickMultiplier: 1,     // Additional multiplier for click gold
+        passiveMultiplier: 1,   // Additional multiplier for passive gold
+        jobCostReduction: 0,    // Percentage reduction in job costs
+        startingResources: {    // Resources granted on prestige
+            gold: 0,            // Starting gold
+            miners: 0,          // Starting miners
+            soldiers: 0,        // Starting soldiers
+            wizards: 0          // Starting wizards
+        }
+    }
 };
 
 // Move balance.json contents here as a constant
@@ -138,6 +154,133 @@ const BALANCE_DATA = {
     }
 };
 
+// Artifact definitions
+const ARTIFACTS = {
+    "ancient-coin": {
+        id: "ancient-coin",
+        name: "Ancient Gold Coin",
+        icon: "🪙",
+        rarity: "common",
+        effect: "Increases all gold income by 20%",
+        description: "A mysteriously preserved gold coin bearing the face of a forgotten king.",
+        unlockCondition: { prestiges: 1 },
+        applyEffect: (gameState) => {
+            gameState.artifactEffects.goldMultiplier *= 1.2;
+            return gameState;
+        }
+    },
+    "mystic-pickaxe": {
+        id: "mystic-pickaxe",
+        name: "Mystic Pickaxe",
+        icon: "⛏️",
+        rarity: "uncommon",
+        effect: "Miners are 35% more efficient",
+        description: "A finely-crafted pickaxe that hums with arcane energy when held.",
+        unlockCondition: { prestiges: 2 },
+        applyEffect: (gameState) => {
+            // Apply directly to the miners GPS
+            gameState.minerJobGPS *= 1.35;
+            return gameState;
+        }
+    },
+    "lucky-clover": {
+        id: "lucky-clover",
+        name: "Four-Leaf Clover",
+        icon: "🍀",
+        rarity: "uncommon",
+        effect: "Gold per click increased by 25%",
+        description: "A perfectly preserved clover that seems to shimmer with an inner light.",
+        unlockCondition: { prestiges: 3 },
+        applyEffect: (gameState) => {
+            gameState.artifactEffects.clickMultiplier *= 1.25;
+            return gameState;
+        }
+    },
+    "heroes-medallion": {
+        id: "heroes-medallion",
+        name: "Hero's Medallion",
+        icon: "🏅",
+        rarity: "rare",
+        effect: "Soldiers are 40% more efficient",
+        description: "A polished medal awarded to a legendary warrior for feats of valor.",
+        unlockCondition: { prestiges: 4 },
+        applyEffect: (gameState) => {
+            // Apply directly to the soldiers GPS
+            gameState.soldierJobGPS *= 1.4;
+            return gameState;
+        }
+    },
+    "ancient-scroll": {
+        id: "ancient-scroll",
+        name: "Ancient Scroll",
+        icon: "📜",
+        rarity: "rare",
+        effect: "Wizards provide 35% more gold per click",
+        description: "Fragile parchment inscribed with faded spells of fortune and prosperity.",
+        unlockCondition: { prestiges: 5 },
+        applyEffect: (gameState) => {
+            // Apply directly to the wizard GPC
+            gameState.wizardJobGPC *= 1.35;
+            return gameState;
+        }
+    },
+    "mercantile-emblem": {
+        id: "mercantile-emblem",
+        name: "Mercantile Emblem",
+        icon: "💼",
+        rarity: "epic",
+        effect: "All jobs cost 15% less gold",
+        description: "A trader's token that whispers secrets of bargaining to its owner.",
+        unlockCondition: { prestiges: 6 },
+        applyEffect: (gameState) => {
+            gameState.artifactEffects.jobCostReduction = 0.15; // 15% reduction
+            return gameState;
+        }
+    },
+    "bottomless-pouch": {
+        id: "bottomless-pouch",
+        name: "Bottomless Pouch",
+        icon: "👝",
+        rarity: "legendary",
+        effect: "Start with 100 gold after each prestige",
+        description: "A small leather pouch that somehow produces gold coins from thin air.",
+        unlockCondition: { prestiges: 7 },
+        applyEffect: (gameState) => {
+            gameState.artifactEffects.startingResources.gold = 100;
+            return gameState;
+        }
+    },
+    "midas-touch": {
+        id: "midas-touch",
+        name: "Midas Touch",
+        icon: "👆",
+        rarity: "legendary",
+        effect: "Increases all gold income by 50%",
+        description: "Your fingertips glimmer with golden light, turning everything you touch to riches.",
+        unlockCondition: { prestiges: 8 },
+        applyEffect: (gameState) => {
+            gameState.artifactEffects.goldMultiplier *= 1.5;
+            return gameState;
+        }
+    },
+    "philosophers-stone": {
+        id: "philosophers-stone",
+        name: "Philosopher's Stone",
+        icon: "💎",
+        rarity: "mythic",
+        effect: "Start with 3 of each job after prestige and increases all gold income by 25%",
+        description: "The legendary alchemical substance that transforms not just lead to gold, but poverty to prosperity.",
+        unlockCondition: { prestiges: 10 },
+        applyEffect: (gameState) => {
+            gameState.artifactEffects.startingResources.miners = 3;
+            gameState.artifactEffects.startingResources.soldiers = 3;
+            gameState.artifactEffects.startingResources.wizards = 3;
+            gameState.artifactEffects.goldMultiplier *= 1.25;
+            return gameState;
+        }
+    }
+};
+
 // DOM element references
 const goldCountEl = document.getElementById('gold-count');
 const goldPerClickEl = document.getElementById('gold-per-click');
@@ -174,6 +317,7 @@ const upgradeWizardBetterFocusCostEl = document.getElementById('upgrade-wizard-b
 //tabs
 const jobsTabButton = document.getElementById('jobs-tab-button');
 const upgradesTabButton = document.getElementById('upgrades-tab-button');
+const artifactsTabButton = document.getElementById('artifacts-tab-button');
 //dev
 const numberFormatToggle = document.getElementById('number-format-toggle');
 //prestige
@@ -190,6 +334,8 @@ const devSoldierUpgradeInput = document.getElementById('dev-soldier-upgrade');
 const devWizardUpgradeInput = document.getElementById('dev-wizard-upgrade');
 const devSetValuesButton = document.getElementById('dev-set-values');
 
+const artifactsContainer = document.getElementById('artifacts-container');
+const noArtifactsMessage = document.getElementById('no-artifacts-message');
 
 // Developer overlay visibility state
 let devOverlayVisible = false;
@@ -509,14 +655,13 @@ function updateUI() {
         prestigeButton.disabled = true;
     }
 
-     // Disable buttons if not enough gold
-     document.querySelectorAll('.job-button').forEach(button => {
+    // Disable buttons if not enough gold
+    document.querySelectorAll('.job-button').forEach(button => {
         const jobType = button.dataset.job;
         const quantity = parseInt(button.dataset.quantity, 10) || 'max'; // 'max' is a string
         if (jobType) {
              const nextCost = calculateBulkCost(jobType, balanceData.jobs[jobType].baseCost, balanceData.jobs[jobType].costIncreaseRate, balanceData.jobs[jobType].costExponent, gameState[jobType.replace('s', '') + 'Jobs'], quantity === 'max' ? 1 : quantity);
              button.disabled = gameState.gold < nextCost;
-
         }
     });
 
@@ -528,6 +673,214 @@ function updateUI() {
             button.disabled = gameState.gold < nextCost;
         }
     });
+    
+    // Update artifacts UI
+    updateArtifactsUI();
+    
+    // Show/hide artifacts tab based on whether player has prestiged
+    if (gameState.totalPrestiges > 0) {
+        artifactsTabButton.style.display = 'block';
+    } else {
+        artifactsTabButton.style.display = 'none';
+    }
+}
+
+/**
+ * Updates the artifacts UI to show unlocked artifacts
+ */
+function updateArtifactsUI() {
+    // Clear the artifacts container
+    artifactsContainer.innerHTML = '';
+    
+    // Check if player has any unlocked artifacts
+    if (gameState.artifacts.unlockedIds.length === 0) {
+        // Show placeholder message if no artifacts
+        noArtifactsMessage.style.display = 'flex';
+    } else {
+        // Hide placeholder message
+        noArtifactsMessage.style.display = 'none';
+        
+        // Sort artifacts by rarity (lower to higher)
+        const rarityOrder = {
+            "common": 1,
+            "uncommon": 2,
+            "rare": 3,
+            "epic": 4,
+            "legendary": 5,
+            "mythic": 6
+        };
+        
+        const sortedArtifacts = [...gameState.artifacts.unlockedIds]
+            .map(id => ARTIFACTS[id])
+            .sort((a, b) => rarityOrder[a.rarity] - rarityOrder[b.rarity]);
+        
+        // Create elements for each unlocked artifact
+        sortedArtifacts.forEach(artifact => {
+            const artifactElement = createArtifactElement(artifact);
+            artifactsContainer.appendChild(artifactElement);
+        });
+        
+        // Also show locked artifacts that will be unlocked soon
+        const nextArtifactsToUnlock = Object.values(ARTIFACTS)
+            .filter(artifact => !gameState.artifacts.unlockedIds.includes(artifact.id) && 
+                   artifact.unlockCondition.prestiges <= gameState.totalPrestiges + 2)
+            .sort((a, b) => a.unlockCondition.prestiges - b.unlockCondition.prestiges)
+            .slice(0, 3); // Show only the next 3 artifacts
+        
+        nextArtifactsToUnlock.forEach(artifact => {
+            const artifactElement = createArtifactElement(artifact, true);
+            artifactsContainer.appendChild(artifactElement);
+        });
+    }
+}
+
+/**
+ * Creates an HTML element for an artifact
+ * @param {Object} artifact - The artifact data
+ * @param {boolean} locked - Whether the artifact is locked
+ * @returns {HTMLElement} - The created element
+ */
+function createArtifactElement(artifact, locked = false) {
+    const artifactElement = document.createElement('div');
+    artifactElement.className = `artifact-container ${artifact.rarity} ${locked ? 'locked' : ''}`;
+    
+    const iconElement = document.createElement('div');
+    iconElement.className = 'artifact-icon';
+    iconElement.textContent = artifact.icon;
+    
+    const nameElement = document.createElement('div');
+    nameElement.className = 'artifact-name';
+    nameElement.textContent = artifact.name;
+    
+    const effectElement = document.createElement('div');
+    effectElement.className = 'artifact-effect';
+    
+    if (locked) {
+        effectElement.textContent = `Unlocks after ${artifact.unlockCondition.prestiges} prestige${artifact.unlockCondition.prestiges > 1 ? 's' : ''}`;
+    } else {
+        effectElement.textContent = artifact.effect;
+    }
+    
+    const flavorElement = document.createElement('div');
+    flavorElement.className = 'artifact-flavor';
+    flavorElement.textContent = artifact.description;
+    
+    artifactElement.appendChild(iconElement);
+    artifactElement.appendChild(nameElement);
+    artifactElement.appendChild(effectElement);
+    artifactElement.appendChild(flavorElement);
+    
+    return artifactElement;
+}
+
+/**
+ * Check for new artifacts that should be unlocked
+ * @param {number} prestigeCount - The current prestige count
+ */
+function checkArtifactUnlocks(prestigeCount) {
+    let newlyUnlocked = [];
+    
+    // Check each artifact
+    Object.values(ARTIFACTS).forEach(artifact => {
+        // If it should be unlocked based on prestige count and isn't already unlocked
+        if (artifact.unlockCondition.prestiges <= prestigeCount && 
+            !gameState.artifacts.unlockedIds.includes(artifact.id)) {
+            // Add to unlocked list
+            gameState.artifacts.unlockedIds.push(artifact.id);
+            newlyUnlocked.push(artifact);
+        }
+    });
+    
+    return newlyUnlocked;
+}
+
+/**
+ * Apply effects from all unlocked artifacts
+ */
+function applyArtifactEffects() {
+    // Reset artifact effects to base values
+    gameState.artifactEffects = {
+        goldMultiplier: 1,
+        clickMultiplier: 1,
+        passiveMultiplier: 1,
+        jobCostReduction: 0,
+        startingResources: {
+            gold: 0,
+            miners: 0,
+            soldiers: 0,
+            wizards: 0
+        }
+    };
+    
+    // Apply each unlocked artifact's effect
+    gameState.artifacts.unlockedIds.forEach(artifactId => {
+        const artifact = ARTIFACTS[artifactId];
+        if (artifact && typeof artifact.applyEffect === 'function') {
+            gameState = artifact.applyEffect(gameState);
+        }
+    });
+    
+    // Now apply the overall effects to the actual game values
+    
+    // Apply gold multipliers to goldPerClick and goldPerSec
+    recalculateGoldRates();
+    
+    // Apply job cost reductions
+    if (gameState.artifactEffects.jobCostReduction > 0) {
+        // Job costs are recalculated when needed in buyJob, but we need to update the display
+        updateJobCostDisplay();
+    }
+}
+
+/**
+ * Recalculates gold rates based on jobs, upgrades, prestige, and artifacts
+ */
+function recalculateGoldRates() {
+    // Base per click from balance data
+    const baseGoldPerClick = balanceData.general.baseGoldPerClick;
+    
+    // Wizard contribution
+    const wizardContribution = gameState.wizardJobGPC * gameState.wizardJobs;
+    
+    // Calculate with artifact multipliers
+    gameState.goldPerClick = (baseGoldPerClick + wizardContribution) * 
+                             gameState.prestigeBonusMultiplier * 
+                             gameState.artifactEffects.goldMultiplier * 
+                             gameState.artifactEffects.clickMultiplier;
+    
+    // Calculate passive income
+    const minerContribution = gameState.minerJobGPS * gameState.minerJobs;
+    const soldierContribution = gameState.soldierJobGPS * gameState.soldierJobs;
+    
+    gameState.goldPerSec = (minerContribution + soldierContribution) * 
+                           gameState.prestigeBonusMultiplier * 
+                           gameState.artifactEffects.goldMultiplier * 
+                           gameState.artifactEffects.passiveMultiplier;
+}
+
+/**
+ * Updates the job cost display after artifacts are applied
+ */
+function updateJobCostDisplay() {
+    // The actual costs are calculated when buying, but we update the display
+    
+    // Calculate costs with artifact reduction
+    const reduction = gameState.artifactEffects.jobCostReduction;
+    
+    // Miners
+    const minerCostBase = calculateNextCost("miners", gameState.minerJobs);
+    const minerCostReduced = Math.floor(minerCostBase * (1 - reduction));
+    minerJobCostEl.textContent = minerCostReduced;
+    
+    // Soldiers
+    const soldierCostBase = calculateNextCost("soldiers", gameState.soldierJobs);
+    const soldierCostReduced = Math.floor(soldierCostBase * (1 - reduction));
+    soldierJobCostEl.textContent = soldierCostReduced;
+    
+    // Wizards
+    const wizardCostBase = calculateNextCost("wizards", gameState.wizardJobs);
+    const wizardCostReduced = Math.floor(wizardCostBase * (1 - reduction));
+    wizardJobCostEl.textContent = wizardCostReduced;
 }
 
 // Click event handler
@@ -574,18 +927,27 @@ function createGoldParticle(event) {
  * @returns {number} The calculated next cost.
  */
 function calculateNextCost(type, owned) {
+    let cost = 0;
+    
     if (balanceData.jobs[type]) {
         // It's a job
         const jobData = balanceData.jobs[type];
-        return Math.floor(jobData.baseCost * (1 + jobData.costIncreaseRate * Math.pow(owned, jobData.costExponent)));
+        cost = Math.floor(jobData.baseCost * (1 + jobData.costIncreaseRate * Math.pow(owned, jobData.costExponent)));
     } else if (balanceData.upgrades[type]) {
         // It's an upgrade
         const upgradeData = balanceData.upgrades[type];
-        return Math.floor(upgradeData.baseCost * (1 + upgradeData.costIncreaseRate * Math.pow(owned, upgradeData.costExponent)));
+        cost = Math.floor(upgradeData.baseCost * (1 + upgradeData.costIncreaseRate * Math.pow(owned, upgradeData.costExponent)));
     } else {
         console.error(`Invalid type for cost calculation: ${type}`);
         return 0;
     }
+    
+    // Apply artifact cost reduction for jobs
+    if (balanceData.jobs[type] && gameState.artifactEffects.jobCostReduction > 0) {
+        cost = Math.floor(cost * (1 - gameState.artifactEffects.jobCostReduction));
+    }
+    
+    return cost;
 }
 
 /**
@@ -922,6 +1284,22 @@ resetButton.addEventListener('click', () => {
         prestigePoints: gameState.prestigePoints, // Keep prestige points
         prestigeBonusMultiplier: gameState.prestigeBonusMultiplier, // Keep bonus multiplier
         lifetimeGold: 0, // Reset lifetime gold for new prestige cycle
+        totalPrestiges: 0,
+        artifacts: {
+            unlockedIds: [],
+        },
+        artifactEffects: {
+            goldMultiplier: 1,
+            clickMultiplier: 1,
+            passiveMultiplier: 1,
+            jobCostReduction: 0,
+            startingResources: {
+                gold: 0,
+                miners: 0,
+                soldiers: 0,
+                wizards: 0
+            }
+        }
     };
     localStorage.removeItem('hasVisited');
     updateUI();
@@ -972,29 +1350,71 @@ function prestigeGame() {
     if (pointsToGain > 0) {
         gameState.prestigePoints += pointsToGain;
         gameState.prestigeBonusMultiplier = 1 + (gameState.prestigePoints * balanceData.prestige.bonusMultiplierPerPoint); // Use bonusMultiplierPerPoint from balance
-
-        // Reset game state (keep prestige points and multiplier)
-        gameState.gold = 0;
-        gameState.goldPerClick = balanceData.general.baseGoldPerClick * gameState.prestigeBonusMultiplier; // Apply bonus immediately to base click - use baseGoldPerClick from balance
+        
+        // Increment total prestiges counter
+        gameState.totalPrestiges++;
+        
+        // Check for new artifact unlocks
+        const newArtifacts = checkArtifactUnlocks(gameState.totalPrestiges);
+        
+        // Reset game state (keep prestige points, multiplier, and artifacts)
+        const artifactsBackup = { ...gameState.artifacts };
+        const prestigePointsBackup = gameState.prestigePoints;
+        const prestigeBonusMultiplierBackup = gameState.prestigeBonusMultiplier;
+        const totalPrestigesBackup = gameState.totalPrestiges;
+        
+        gameState.gold = gameState.artifactEffects.startingResources.gold;
+        gameState.minerJobs = gameState.artifactEffects.startingResources.miners;
+        gameState.soldierJobs = gameState.artifactEffects.startingResources.soldiers;
+        gameState.wizardJobs = gameState.artifactEffects.startingResources.wizards;
+        
+        gameState.goldPerClick = balanceData.general.baseGoldPerClick;
         gameState.goldPerSec = 0;
-        gameState.minerJobs = 0;
         gameState.minerJobCost = balanceData.jobs.miners.baseCost;
-        gameState.soldierJobs = 0;
         gameState.soldierJobCost = balanceData.jobs.soldiers.baseCost;
-        gameState.wizardJobs = 0;
         gameState.wizardJobCost = balanceData.jobs.wizards.baseCost;
-        gameState.wizardJobGPC = balanceData.jobs.wizards.goldPerClick; // Reset Wizard GPC to base
+        gameState.minerJobGPS = balanceData.jobs.miners.goldPerSecond;
+        gameState.soldierJobGPS = balanceData.jobs.soldiers.goldPerSecond;
+        gameState.wizardJobGPC = balanceData.jobs.wizards.goldPerClick;
+        
         gameState.upgrades = {
             "miner-sharp-pickaxe": { level: 0, cost: balanceData.upgrades["miner-sharp-pickaxe"].baseCost },
             "soldier-stronger-swords": { level: 0, cost: balanceData.upgrades["soldier-stronger-swords"].baseCost },
             "wizard-better-focus": { level: 0, cost: balanceData.upgrades["wizard-better-focus"].baseCost },
         };
+        
         gameState.lifetimeGold = 0; // Reset lifetime gold for new prestige cycle
-
+        
+        // Restore prestige and artifacts data
+        gameState.artifacts = artifactsBackup;
+        gameState.prestigePoints = prestigePointsBackup;
+        gameState.prestigeBonusMultiplier = prestigeBonusMultiplierBackup;
+        gameState.totalPrestiges = totalPrestigesBackup;
+        
+        // Apply artifact effects to the fresh game state
+        applyArtifactEffects();
+        
+        // Calculate gold rates with artifacts and prestige bonuses
+        recalculateGoldRates();
+        
+        // Update the UI
         updateUI();
         saveGame();
         playSound('prestige');
-        alert(`Prestiged! Earned ${pointsToGain} Prestige Points. Gold gain bonus increased to +${formatNumber((gameState.prestigeBonusMultiplier - 1) * 100)}%`); // Notification
+        
+        // Show message about prestige and any new artifacts
+        let message = `Prestiged! Earned ${pointsToGain} Prestige Points. Gold gain bonus increased to +${formatNumber((gameState.prestigeBonusMultiplier - 1) * 100)}%`;
+        
+        // Add information about newly unlocked artifacts
+        if (newArtifacts.length > 0) {
+            message += `\n\nYou've discovered ${newArtifacts.length} new artifact${newArtifacts.length > 1 ? 's' : ''}!\n`;
+            newArtifacts.forEach(artifact => {
+                message += `\n${artifact.icon} ${artifact.name}: ${artifact.effect}`;
+            });
+            message += "\n\nCheck the Artifacts tab to view your collection!";
+        }
+        
+        alert(message);
 
     } else {
         playSound('error');
@@ -1502,6 +1922,21 @@ async function initGame() {
     loadMusicPreference(); // Initialize music preferences
     loadMusicVolumePreference(); // Initialize music volume preference
     
+    // Apply artifact effects after loading game
+    if (gameState.artifacts && gameState.artifacts.unlockedIds && gameState.artifacts.unlockedIds.length > 0) {
+        applyArtifactEffects();
+    }
+    
+    // Hide artifacts tab until player has at least one prestige
+    if (artifactsTabButton) {
+        if (gameState.totalPrestiges > 0) {
+            artifactsTabButton.style.display = 'block';
+        } else {
+            artifactsTabButton.style.display = 'none';
+        }
+    }
+    
+    // Set initial active tab and update
     openTab('jobs-content');
     jobsTabButton.classList.add("active");
     numberFormatToggle.checked = gameState.useScientificNotation;
@@ -1533,6 +1968,8 @@ async function initGame() {
     // Add event listeners to tab buttons
     jobsTabButton.addEventListener('click', (event) => openTab('jobs-content', event)); // Pass event object
     upgradesTabButton.addEventListener('click', (event) => openTab('upgrades-content', event)); // Pass event object
+    artifactsTabButton.addEventListener('click', (event) => openTab('artifacts-content', event)); // Pass event object
+    
     // Add event listener to number format toggle
     numberFormatToggle.addEventListener('change', () => {
         gameState.useScientificNotation = numberFormatToggle.checked; // Update the game state
@@ -1567,3 +2004,161 @@ function addManualSaveButton() {
 
 // Call the initialization function
 initGame();
+
+// Add these functions at the beginning of the click handling code
+// Debug functions for mobile troubleshooting
+const debugDisplay = document.getElementById('debug-display');
+let debugEnabled = false; // Now disabled by default
+
+// Function to show debug message in the dev overlay
+function showDebug(message) {
+    if (!debugEnabled) return; // Skip if debugging is disabled
+    
+    console.log(message); // Always log to console
+    
+    if (debugDisplay) {
+        debugDisplay.innerHTML += message + '<br>';
+        
+        // Only keep last 10 messages
+        const lines = debugDisplay.innerHTML.split('<br>');
+        if (lines.length > 11) {
+            debugDisplay.innerHTML = lines.slice(lines.length - 11).join('<br>');
+        }
+        
+        // Auto-scroll to bottom
+        debugDisplay.scrollTop = debugDisplay.scrollHeight;
+    }
+}
+
+// Function to clear debug messages
+function clearDebug() {
+    if (debugDisplay) {
+        debugDisplay.innerHTML = '';
+    }
+}
+
+// Function to toggle debug mode
+function toggleDebug() {
+    debugEnabled = !debugEnabled;
+    showDebug(`Debug mode ${debugEnabled ? 'enabled' : 'disabled'}`);
+    return debugEnabled;
+}
+
+// Add event listeners for debug buttons in dev overlay
+document.addEventListener('DOMContentLoaded', function() {
+    const clearDebugButton = document.getElementById('clear-debug');
+    const toggleDebugButton = document.getElementById('toggle-debug');
+    
+    if (clearDebugButton) {
+        clearDebugButton.addEventListener('click', clearDebug);
+    }
+    
+    if (toggleDebugButton) {
+        toggleDebugButton.addEventListener('click', function() {
+            const isEnabled = toggleDebug();
+            this.textContent = isEnabled ? 'Disable Debug' : 'Enable Debug';
+        });
+    }
+});
+
+// Mobile detection with debug output
+document.addEventListener('DOMContentLoaded', function() {
+    const isMobile = isMobileDevice();
+    showDebug(`Mobile device detected: ${isMobile}`);
+    showDebug(`User Agent: ${navigator.userAgent}`);
+    
+    const clickArea = document.querySelector('.click-area');
+    const clickButton = document.getElementById('click-button');
+    
+    if (clickArea && clickButton) {
+        showDebug('Click elements found');
+        
+        // Add empty handlers for Safari
+        ['touchstart', 'touchend', 'touchcancel', 'touchmove'].forEach(event => {
+            clickArea.addEventListener(event, function() {
+                showDebug(`Empty ${event} fired`);
+            });
+        });
+        
+        // Use touchstart for immediate response on mobile
+        clickArea.addEventListener('touchstart', function(event) {
+            showDebug('touchstart on click-area');
+            handleCoinClick(event);
+        });
+        
+        // Keep click for desktop compatibility
+        clickArea.addEventListener('click', function(event) {
+            showDebug('click on click-area');
+            if (event.pointerType === 'touch') {
+                showDebug('Ignoring simulated click after touch');
+                return;
+            }
+            handleCoinClick(event);
+        });
+        
+        // Direct button listeners too
+        clickButton.addEventListener('touchstart', function(event) {
+            showDebug('touchstart on button');
+            event.stopPropagation();
+            handleCoinClick(event);
+        });
+        
+        clickButton.addEventListener('click', function(event) {
+            showDebug('click on button');
+            if (event.pointerType === 'touch') {
+                showDebug('Ignoring simulated click after touch');
+                return;
+            }
+            event.stopPropagation();
+            handleCoinClick(event);
+        });
+    } else {
+        showDebug('ERROR: Click elements not found!');
+    }
+});
+
+// Function to handle the coin click action
+function handleCoinClick(event) {
+    showDebug('handleCoinClick called');
+    
+    // Create a gold particle at the click position
+    try {
+        createGoldParticle(event);
+    } catch (e) {
+        showDebug(`Error in particle: ${e.message}`);
+    }
+    
+    // Calculate the gold gained with prestige bonus
+    const goldGained = gameState.goldPerClick * gameState.prestigeBonusMultiplier;
+    
+    // Add gold
+    gameState.gold += goldGained;
+    gameState.lifetimeGold += goldGained;
+    
+    // Log for debugging
+    showDebug(`Gold added: ${goldGained}`);
+    
+    // Play sound - use the exact key from SOUNDS object
+    try {
+        playSound('goldClick');
+    } catch (e) {
+        showDebug(`Sound error: ${e.message}`);
+    }
+    
+    // Add the visual feedback
+    if (clickButton) {
+        clickButton.classList.add('clicked');
+        setTimeout(() => {
+            clickButton.classList.remove('clicked');
+        }, 100);
+    }
+    
+    // Update UI and save
+    try {
+        updateUI();
+        saveGame();
+        showDebug('UI updated & saved');
+    } catch (e) {
+        showDebug(`Error in update: ${e.message}`);
+    }
+}

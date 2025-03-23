@@ -205,7 +205,20 @@ h1 {
 
 /* Container for the clickable area - Mobile First */
 .click-area {
-  margin: 15px 0;
+  margin: 15px auto;
+  position: relative;
+  cursor: pointer;
+  width: 200px;
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  -webkit-tap-highlight-color: transparent;
+  background-color: rgba(255, 215, 0, 0.1); /* Very subtle gold background to make the hit area visible */
+  z-index: 5; /* Ensure it's above other elements */
+  touch-action: manipulation; /* Improve touch responsiveness */
+  user-select: none; /* Prevent selection issues */
 }
 
 /* Main clickable button styling - Mobile First */
@@ -225,11 +238,17 @@ h1 {
   margin: 0 auto;
   -webkit-tap-highlight-color: transparent; /* Remove tap highlight */
   user-select: none; /* Prevent text selection */
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1;
 }
 
 /* Active/clicked state for click button - Adapted for touch */
-.click-button:active, .click-button.clicked {
-  transform: scale(0.95);
+.click-button:active, .click-button.clicked,
+.click-area:active .click-button {
+  transform: translate(-50%, -50%) scale(0.95);
   box-shadow: 0 2px 3px rgba(0, 0, 0, 0.3);
 }
 
@@ -281,7 +300,7 @@ h1 {
 }
 
 /* Jobs section - Mobile First */
-.jobs, .upgrades {
+.jobs, .upgrades, .artifacts {
   margin-top: 15px;
   padding: 12px 8px; /* Reduced padding */
   background-color: #eadec1;
@@ -290,7 +309,7 @@ h1 {
 }
 
 /* Job and upgrade containers - Mobile First */
-.job-container, .upgrade-container {
+.job-container, .upgrade-container, .artifact-container {
   margin-bottom: 12px;
   padding: 12px 8px;
   border: 1px solid #ddd;
@@ -506,6 +525,253 @@ h1 {
 
 #manual-save-button:active {
   background-color: #0b7dda;
+}
+
+/* Artifact-specific styling */
+.artifacts {
+  background-color: #e6d8b7; /* Slightly different background for distinction */
+}
+
+.artifact-header {
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+.artifact-title {
+  color: #7d4924;
+  margin-top: 0;
+  font-size: 1.5rem;
+  text-shadow: 1px 1px 2px #d9c7a9;
+}
+
+.artifact-description {
+  color: #6b4423;
+  font-size: 0.9rem;
+  margin-top: 5px;
+}
+
+.artifact-section {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  width: 100%;
+}
+
+#artifacts-container {
+  display: contents; /* Makes the container's children become direct children of the grid */
+}
+
+.artifact-container {
+  display: flex;
+  flex-direction: column;
+  background-color: rgba(247, 237, 213, 0.7);
+  border: 1px solid #c9b28f;
+  border-radius: 8px;
+  padding: 8px;
+  transition: transform 0.2s, box-shadow 0.2s;
+  position: relative;
+  overflow: hidden;
+  height: 180px; /* Fixed height instead of max-height */
+  width: 100%; /* Ensure it takes full column width */
+  margin: 0; /* Remove any margins */
+}
+
+.artifact-icon {
+  font-size: 1.5rem;
+  margin-bottom: 4px;
+  text-align: center;
+}
+
+.artifact-name {
+  font-weight: bold;
+  font-size: 0.95rem;
+  color: #7d4924;
+  margin-bottom: 3px;
+  text-align: center;
+}
+
+.artifact-effect {
+  color: #6b4423;
+  font-size: 0.8rem;
+  text-align: center;
+  margin-bottom: 4px;
+}
+
+.artifact-flavor {
+  font-style: italic;
+  color: #8a7b5c;
+  font-size: 0.75rem;
+  text-align: center;
+  border-top: 1px dashed #c9b28f;
+  padding-top: 3px;
+  margin-top: auto;
+}
+
+.artifact-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(234, 222, 193, 0.5);
+  border: 2px dashed #c9b28f;
+  border-radius: 8px;
+  padding: 15px;
+  text-align: center;
+  min-height: 150px;
+  grid-column: span 2;
+}
+
+.placeholder-icon {
+  font-size: 2.5rem;
+  margin-bottom: 10px;
+  opacity: 0.7;
+}
+
+.artifact-placeholder p {
+  color: #8a7b5c;
+  font-style: italic;
+}
+
+/* Artifact rarity indicators */
+.artifact-container.common {
+  box-shadow: 0 2px 8px rgba(139, 107, 61, 0.3);
+}
+
+.artifact-container.uncommon {
+  box-shadow: 0 2px 8px rgba(67, 139, 98, 0.3);
+  border-color: #75b590;
+}
+
+.artifact-container.rare {
+  box-shadow: 0 2px 8px rgba(65, 105, 225, 0.3);
+  border-color: #6495ed;
+}
+
+.artifact-container.epic {
+  box-shadow: 0 2px 8px rgba(147, 112, 219, 0.4);
+  border-color: #9370db;
+}
+
+.artifact-container.legendary {
+  box-shadow: 0 2px 8px rgba(218, 165, 32, 0.5);
+  border-color: #daa520;
+  background: linear-gradient(to bottom, rgba(253, 241, 196, 0.7), rgba(247, 237, 213, 0.7));
+}
+
+.artifact-container.mythic {
+  box-shadow: 0 2px 12px rgba(255, 0, 128, 0.4);
+  border-color: #ff3399;
+  background: linear-gradient(to bottom, rgba(255, 230, 240, 0.7), rgba(247, 237, 213, 0.7));
+}
+
+/* Artifact locked/unlocked states */
+.artifact-container.locked {
+  filter: grayscale(100%);
+  opacity: 0.7;
+  cursor: default;
+}
+
+.artifact-container.locked .artifact-icon:after {
+  content: '🔒';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 1.5rem;
+}
+
+/* Media query adjustments for artifacts */
+@media screen and (min-width: 768px) {
+  .artifact-section {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+  
+  .artifact-placeholder {
+    grid-column: span 3;
+  }
+}
+
+@media screen and (min-width: 992px) {
+  .artifact-section {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  
+  .artifact-placeholder {
+    grid-column: span 4;
+  }
+  
+  .artifact-container:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  }
+  
+  .artifact-container.locked:hover {
+    transform: none;
+    box-shadow: none;
+  }
+}
+
+/* Dark mode adjustments for artifacts */
+@media (prefers-color-scheme: dark) {
+  .artifacts {
+    background-color: #352e1f;
+  }
+  
+  .artifact-title {
+    color: #e0c088;
+    text-shadow: 1px 1px 2px #1a1610;
+  }
+  
+  .artifact-description, .artifact-effect {
+    color: #e8d7b0;
+  }
+  
+  .artifact-container {
+    background-color: rgba(58, 49, 34, 0.7);
+    border-color: #5a4a2e;
+  }
+  
+  .artifact-name {
+    color: #e0c088;
+  }
+  
+  .artifact-flavor {
+    color: #b3a684;
+    border-top-color: #5a4a2e;
+  }
+  
+  .artifact-placeholder {
+    background-color: rgba(53, 46, 31, 0.5);
+    border-color: #5a4a2e;
+  }
+  
+  .artifact-placeholder p {
+    color: #b3a684;
+  }
+  
+  /* Artifact rarity in dark mode */
+  .artifact-container.uncommon {
+    border-color: #5a8c71;
+  }
+  
+  .artifact-container.rare {
+    border-color: #4c71b3;
+  }
+  
+  .artifact-container.epic {
+    border-color: #7658a8;
+  }
+  
+  .artifact-container.legendary {
+    border-color: #a88734;
+    background: linear-gradient(to bottom, rgba(90, 74, 46, 0.7), rgba(58, 49, 34, 0.7));
+  }
+  
+  .artifact-container.mythic {
+    border-color: #b34775;
+    background: linear-gradient(to bottom, rgba(90, 46, 61, 0.7), rgba(58, 49, 34, 0.7));
+  }
 }
 
 /* ===== Media Queries for Larger Screens ===== */

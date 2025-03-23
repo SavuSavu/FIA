@@ -155,10 +155,31 @@
             </div>
         </div>
         
+        <!-- Artifacts Tab Content -->
+        <div id="artifacts-content" class="tabcontent">
+            <div class="artifacts">
+                <div class="artifact-header">
+                    <h2 class="artifact-title">Artifacts</h2>
+                    <p class="artifact-description">Powerful relics unlocked through prestige, providing permanent bonuses to your adventure.</p>
+                </div>
+                <div class="artifact-section">
+                    <!-- Artifacts will be populated dynamically -->
+                    <div id="artifacts-container"></div>
+                    
+                    <!-- Placeholder for when no artifacts are unlocked yet -->
+                    <div id="no-artifacts-message" class="artifact-placeholder">
+                        <div class="placeholder-icon">🏺</div>
+                        <p>Complete your first prestige to unlock artifacts!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
         <!-- Tab Bar (moved to the bottom for mobile) -->
         <div class="tab">
             <button class="tablinks" id="jobs-tab-button">Jobs</button>
             <button class="tablinks" id="upgrades-tab-button">Upgrades</button>
+            <button class="tablinks" id="artifacts-tab-button">Artifacts</button>
         </div>
     </div>
     <div class="autosave-notification" id="autosave-notification">Game saved!</div>
@@ -202,7 +223,18 @@
         </div>
 
         <button id="dev-set-values">Set Values</button>
-        <button id="close-dev-overlay" style="background-color: #607D8B;">Close</button>
+        
+        <!-- Debug output area for dev overlay -->
+        <div id="debug-area" style="margin-top: 15px; width: 100%;">
+            <h4 style="color: white; margin-bottom: 8px;">Debug Output:</h4>
+            <div id="debug-display" style="background: rgba(0,0,0,0.5); color: #00ff00; padding: 10px; border-radius: 5px; font-size: 12px; font-family: monospace; max-height: 150px; overflow-y: auto; width: 100%;">Debug logs will appear here</div>
+            <div style="display: flex; justify-content: space-between; margin-top: 8px;">
+                <button id="clear-debug" style="background-color: #555; flex: 1; margin-right: 5px;">Clear Logs</button>
+                <button id="toggle-debug" style="background-color: #555; flex: 1; margin-left: 5px;">Toggle Debug</button>
+            </div>
+        </div>
+        
+        <button id="close-dev-overlay" style="background-color: #607D8B; margin-top: 15px;">Close</button>
     </div>
 
     <script src="script.js"></script>
