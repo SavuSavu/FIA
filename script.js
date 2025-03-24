@@ -1954,14 +1954,14 @@ async function initGame() {
     // Add sound to stat items
     addSoundToStatItems();
 
-    if (!localStorage.getItem('hasVisited')) {
-        alert("Welcome to Fantasy Idle Adventure!\n\n" +
-            "Click the gold coin to earn gold.\n" +
-            "Use your gold to hire Miners, Soldiers, and Wizards (Jobs).\n" +
-            "Buy upgrades to improve your Jobs.\n\n" +
-            "Have fun!");
-        localStorage.setItem('hasVisited', 'true');
-    }
+    //if (!localStorage.getItem('hasVisited')) {
+    //    alert("Welcome to Fantasy Idle Adventure!\n\n" +
+    //        "Click the gold coin to earn gold.\n" +
+    //        "Use your gold to hire Miners, Soldiers, and Wizards (Jobs).\n" +
+    //        "Buy upgrades to improve your Jobs.\n\n" +
+    //        "Have fun!");
+    //    localStorage.setItem('hasVisited', 'true');
+    //}
     
     addManualSaveButton();
 
